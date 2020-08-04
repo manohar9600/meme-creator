@@ -1,108 +1,104 @@
 import 'package:flutter/material.dart';
-import 'package:english_words/english_words.dart';
+import "package:flutter_feather_icons/flutter_feather_icons.dart";
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyApp createState() => _MyApp();
+}
+
+class _MyApp extends State<MyApp> {
+  int _currentIndex = 0;
+  final tabs = [
+    Home(),
+    Center(
+      child: Text("Search"),
+    ),
+    Center(
+      child: Text("Create"),
+    ),
+    Center(
+      child: Text("Profile"),
+    )
+  ];
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Startup Name Generator",
-      home: Home(),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text("MeMe Maker"),
+        ),
+        body: tabs[_currentIndex],
+        bottomNavigationBar: NavigationBar(
+            currentIndex: _currentIndex,
+            changeMainView: (int index) {
+              setState(() {
+                _currentIndex = index;
+              });
+            }),
+      ),
     );
   }
 }
 
-class RandomWords extends StatefulWidget {
+class Home extends StatefulWidget {
   @override
-  _RandomWordsState createState() => _RandomWordsState();
+  _Home createState() => _Home();
 }
 
-class _RandomWordsState extends State<RandomWords> {
-  final _suggestions = <WordPair>[];
-  final _biggerFont = TextStyle(fontSize: 18.0);
+class _Home extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Startup Name Generator"),
-      ),
-      body: _buildSuggestion(),
-    );
+    return Text("Home123");
+  }
+}
+
+class NavigationBar extends StatefulWidget {
+  final Function(int) changeMainView;
+  final currentIndex;
+  NavigationBar({@required this.currentIndex, @required this.changeMainView});
+  @override
+  _NavigationBar createState() => _NavigationBar(
+      currentIndex: this.currentIndex, changeMainView: this.changeMainView);
+}
+
+class _NavigationBar extends State<NavigationBar> {
+  Color _color = Colors.black;
+  int currentIndex;
+  final Function(int) changeMainView;
+
+  _NavigationBar({@required this.currentIndex, @required this.changeMainView});
+  @override
+  Widget build(BuildContext context) {
+    return _buildNavigationBar();
   }
 
-  Widget _buildSuggestion() {
-    return ListView.builder(
-      padding: EdgeInsets.all(16.0),
-      itemBuilder: (context, i) {
-        if (i.isOdd) return Divider();
-        final index = i ~/ 2;
-        if (index >= _suggestions.length) {
-          _suggestions.addAll(generateWordPairs().take(10));
-        }
-        return _buildRow(_suggestions[index]);
+  BottomNavigationBar _buildNavigationBar() {
+    return BottomNavigationBar(
+      currentIndex: currentIndex,
+      type: BottomNavigationBarType.fixed,
+      // iconSize: 30,
+      showSelectedLabels: false,
+      showUnselectedLabels: false,
+      items: [
+        _buildNavigationButton(_color, FeatherIcons.home, "Home"),
+        _buildNavigationButton(_color, FeatherIcons.search, "Search"),
+        _buildNavigationButton(_color, FeatherIcons.plusCircle, "Add"),
+        _buildNavigationButton(_color, Icons.account_circle, "Profile")
+      ],
+      onTap: (index) {
+        setState(() {
+          currentIndex = index;
+          changeMainView(index);
+        });
       },
     );
   }
 
-  Widget _buildRow(WordPair pair) {
-    return ListTile(
-      title: Text(
-        pair.asPascalCase,
-        style: _biggerFont,
-      ),
-    );
-  }
-}
-
-class Home extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("MeMe Maker"),
-      ),
-      body: NavigationBar(),
-    );
-  }
-}
-
-class NavigationBar extends StatelessWidget {
-  final _color = Colors.black;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: _buildButtonRow(),
-    );
-  }
-
-  Row _buildButtonRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        _buildButtonColumn(_color, Icons.home, 'HOME'),
-        _buildButtonColumn(_color, Icons.search, 'SEARCH'),
-        _buildButtonColumn(_color, Icons.add_a_photo, 'CREATE'),
-        _buildButtonColumn(_color, Icons.account_circle, 'PROFILE')
-      ],
-    );
-  }
-
-  Column _buildButtonColumn(Color color, IconData icon, String label) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Icon(
-          icon,
-          color: color,
-        ),
-        // Container(
-        //     margin: const EdgeInsets.only(top: 8),
-        //     child: Text(label,
-        //         style: TextStyle(
-        //             fontSize: 12, fontWeight: FontWeight.w400, color: color)))
-      ],
-    );
+  BottomNavigationBarItem _buildNavigationButton(
+      Color color, IconData icon, String label) {
+    return BottomNavigationBarItem(icon: Icon(icon), title: Text(label));
   }
 }
