@@ -71,3 +71,11 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: fonts/Inter-Light-slnt=0.ttf
+        - asset: fonts/Inter-Regular-slnt=0.ttf
+        - asset: fonts/Inter-Medium-slnt=0.ttf
+        - asset: fonts/Inter-SemiBold-slnt=0.ttf

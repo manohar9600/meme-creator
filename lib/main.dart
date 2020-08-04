@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
+import 'widgets/navigation_bar.dart';
 
 void main() => runApp(MyApp());
 
@@ -10,36 +11,62 @@ class MyApp extends StatefulWidget {
 
 class _MyApp extends State<MyApp> {
   int _currentIndex = 0;
-  final tabs = [
-    Home(),
-    Center(
-      child: Text("Search"),
-    ),
-    Center(
-      child: Text("Create"),
-    ),
-    Center(
-      child: Text("Profile"),
-    )
-  ];
+  bool _showAppBar = true;
+  List<Widget> tabs;
+
+  _MyApp() {
+    this.tabs = getTabs();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Startup Name Generator",
       home: Scaffold(
-        appBar: AppBar(
-          title: Text("MeMe Maker"),
-        ),
+        appBar: _showAppBar
+            ? AppBar(
+                title: Text("MeMe Maker"),
+              )
+            : PreferredSize(
+                child: Container(),
+                preferredSize: Size(0.0, 0.0),
+              ),
         body: tabs[_currentIndex],
         bottomNavigationBar: NavigationBar(
-            currentIndex: _currentIndex,
-            changeMainView: (int index) {
-              setState(() {
-                _currentIndex = index;
-              });
-            }),
+            currentIndex: _currentIndex, changeMainView: _updateMainScreen),
       ),
+      theme: ThemeData(fontFamily: 'Inter'),
     );
+  }
+
+  List<Widget> getTabs() {
+    final tabs = [
+      Home(),
+      Center(
+        child: Text("Search"),
+      ),
+      AddScreen(
+        onClose: () {
+          setState(() {
+            _showAppBar = true;
+            _currentIndex = 0;
+          });
+        },
+      ),
+      Center(
+        child: Text("Profile34we"),
+      )
+    ];
+    return tabs;
+  }
+
+  void _updateMainScreen(int index) {
+    setState(() {
+      _currentIndex = index;
+      if (index == 2) {
+        _showAppBar = false;
+      }
+    });
   }
 }
 
@@ -55,50 +82,32 @@ class _Home extends State<Home> {
   }
 }
 
-class NavigationBar extends StatefulWidget {
-  final Function(int) changeMainView;
-  final currentIndex;
-  NavigationBar({@required this.currentIndex, @required this.changeMainView});
+class AddScreen extends StatefulWidget {
+  final Function() onClose;
+  AddScreen({@required this.onClose});
   @override
-  _NavigationBar createState() => _NavigationBar(
-      currentIndex: this.currentIndex, changeMainView: this.changeMainView);
+  _AddScreen createState() => _AddScreen(this.onClose);
 }
 
-class _NavigationBar extends State<NavigationBar> {
-  Color _color = Colors.black;
-  int currentIndex;
-  final Function(int) changeMainView;
-
-  _NavigationBar({@required this.currentIndex, @required this.changeMainView});
+class _AddScreen extends State<AddScreen> {
+  final Function() onClose;
+  _AddScreen(this.onClose);
   @override
   Widget build(BuildContext context) {
-    return _buildNavigationBar();
-  }
-
-  BottomNavigationBar _buildNavigationBar() {
-    return BottomNavigationBar(
-      currentIndex: currentIndex,
-      type: BottomNavigationBarType.fixed,
-      // iconSize: 30,
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
-      items: [
-        _buildNavigationButton(_color, FeatherIcons.home, "Home"),
-        _buildNavigationButton(_color, FeatherIcons.search, "Search"),
-        _buildNavigationButton(_color, FeatherIcons.plusCircle, "Add"),
-        _buildNavigationButton(_color, Icons.account_circle, "Profile")
-      ],
-      onTap: (index) {
-        setState(() {
-          currentIndex = index;
-          changeMainView(index);
-        });
-      },
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        leading: IconButton(
+          icon: Icon(FeatherIcons.x, color: Colors.black),
+          onPressed: () {
+            onClose();
+          },
+        ),
+        title: Text("Edit", style: TextStyle(color: Colors.black)),
+        // actions: <Widget>[
+        //   IconButton(icon: Icon(FeatherIcons.arrowRight, color: Colors.black)),
+        // ],
+      ),
     );
-  }
-
-  BottomNavigationBarItem _buildNavigationButton(
-      Color color, IconData icon, String label) {
-    return BottomNavigationBarItem(icon: Icon(icon), title: Text(label));
   }
 }
