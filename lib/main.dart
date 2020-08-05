@@ -1,42 +1,44 @@
 import 'package:flutter/material.dart';
-import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'widgets/navigation_bar.dart';
+import 'pages/add_page.dart';
+import 'pages/home.dart';
+import 'animations/slide_page_route.dart';
 
 void main() => runApp(MyApp());
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   @override
-  _MyApp createState() => _MyApp();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "Startup Name Generator",
+      home: MainScreen(),
+      theme: ThemeData(fontFamily: 'Inter'),
+    );
+  }
 }
 
-class _MyApp extends State<MyApp> {
+class MainScreen extends StatefulWidget {
+  @override
+  _MainScreen createState() => _MainScreen();
+}
+
+class _MainScreen extends State<MainScreen> {
   int _currentIndex = 0;
-  bool _showAppBar = true;
   List<Widget> tabs;
 
-  _MyApp() {
+  _MainScreen() {
     this.tabs = getTabs();
   }
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: "Startup Name Generator",
-      home: Scaffold(
-        appBar: _showAppBar
-            ? AppBar(
-                title: Text("MeMe Maker"),
-              )
-            : PreferredSize(
-                child: Container(),
-                preferredSize: Size(0.0, 0.0),
-              ),
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("MeMe Maker"),
+        ),
         body: tabs[_currentIndex],
         bottomNavigationBar: NavigationBar(
-            currentIndex: _currentIndex, changeMainView: _updateMainScreen),
-      ),
-      theme: ThemeData(fontFamily: 'Inter'),
-    );
+            currentIndex: _currentIndex, changeMainView: _updateMainScreen));
   }
 
   List<Widget> getTabs() {
@@ -45,14 +47,7 @@ class _MyApp extends State<MyApp> {
       Center(
         child: Text("Search"),
       ),
-      AddScreen(
-        onClose: () {
-          setState(() {
-            _showAppBar = true;
-            _currentIndex = 0;
-          });
-        },
-      ),
+      Text("Edit screen"),
       Center(
         child: Text("Profile34we"),
       )
@@ -62,52 +57,23 @@ class _MyApp extends State<MyApp> {
 
   void _updateMainScreen(int index) {
     setState(() {
-      _currentIndex = index;
       if (index == 2) {
-        _showAppBar = false;
+        // add routing logic
+        Navigator.push(context, SlidePageRoute(widget: _getAddScreenWidget()));
+      } else {
+        _currentIndex = index;
       }
     });
   }
-}
 
-class Home extends StatefulWidget {
-  @override
-  _Home createState() => _Home();
-}
-
-class _Home extends State<Home> {
-  @override
-  Widget build(BuildContext context) {
-    return Text("Home123");
-  }
-}
-
-class AddScreen extends StatefulWidget {
-  final Function() onClose;
-  AddScreen({@required this.onClose});
-  @override
-  _AddScreen createState() => _AddScreen(this.onClose);
-}
-
-class _AddScreen extends State<AddScreen> {
-  final Function() onClose;
-  _AddScreen(this.onClose);
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: Icon(FeatherIcons.x, color: Colors.black),
-          onPressed: () {
-            onClose();
-          },
-        ),
-        title: Text("Edit", style: TextStyle(color: Colors.black)),
-        // actions: <Widget>[
-        //   IconButton(icon: Icon(FeatherIcons.arrowRight, color: Colors.black)),
-        // ],
-      ),
+  Widget _getAddScreenWidget() {
+    return AddScreen(
+      onClose: () {
+        setState(() {
+          _currentIndex = 0;
+          // add routing logic
+        });
+      },
     );
   }
 }
