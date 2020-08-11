@@ -79,3 +79,6 @@ flutter:
         - asset: fonts/Inter-Regular-slnt=0.ttf
         - asset: fonts/Inter-Medium-slnt=0.ttf
         - asset: fonts/Inter-SemiBold-slnt=0.ttf
+  
+  assets:
+    - images/template1.jpg

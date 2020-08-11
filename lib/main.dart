@@ -59,21 +59,10 @@ class _MainScreen extends State<MainScreen> {
     setState(() {
       if (index == 2) {
         // add routing logic
-        Navigator.push(context, SlidePageRoute(widget: _getAddScreenWidget()));
+        Navigator.push(context, SlidePageRoute(widget: AddScreen()));
       } else {
         _currentIndex = index;
       }
     });
-  }
-
-  Widget _getAddScreenWidget() {
-    return AddScreen(
-      onClose: () {
-        setState(() {
-          _currentIndex = 0;
-          // add routing logic
-        });
-      },
-    );
   }
 }
