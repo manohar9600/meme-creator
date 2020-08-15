@@ -1,11 +1,7 @@
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
-
-class ImageData {
-  bool isSelected = false;
-  String imageLoc = '';
-  ImageData({this.imageLoc});
-}
+import '../classes/image_data.dart';
+import 'edit_page.dart';
 
 class AddScreen extends StatefulWidget {
   @override
@@ -15,6 +11,7 @@ class AddScreen extends StatefulWidget {
 class _AddScreen extends State<AddScreen> {
   List<ImageData> selectedImages = [];
   List<Widget> images;
+  bool editPage = false;
 
   _AddScreen() {
     this.images = [
@@ -40,7 +37,10 @@ class _AddScreen extends State<AddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: getAppBar(),
-      body: getBodyWidget(),
+      body: !editPage
+          ? getBodyWidget()
+          : EditPage(selectedImages: selectedImages),
+      // bottomNavigationBar: NavigationBar(),
     );
   }
 
@@ -54,9 +54,14 @@ class _AddScreen extends State<AddScreen> {
         },
       ),
       title: Text("Edit", style: TextStyle(color: Colors.black)),
-      // actions: <Widget>[
-      //   IconButton(icon: Icon(FeatherIcons.arrowRight, color: Colors.black)),
-      // ],
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(FeatherIcons.arrowRight, color: Colors.black),
+          onPressed: () {
+            navigateToEditPage();
+          },
+        ),
+      ],
     );
   }
 
@@ -80,6 +85,12 @@ class _AddScreen extends State<AddScreen> {
       selectedImages.remove(clickedImage);
     }
     print('called');
+  }
+
+  void navigateToEditPage() {
+    setState(() {
+      editPage = true;
+    });
   }
 }
 
@@ -174,7 +185,7 @@ class _ImageItemWidget extends State<ImageItemWidget> {
         ),
         isSelected
             ? Align(
-                alignment: Alignment.bottomRight,
+                alignment: FractionalOffset.bottomCenter,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Icon(

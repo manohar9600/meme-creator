@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'widgets/navigation_bar.dart';
-import 'pages/add_page.dart';
+import 'edit_page/add_page.dart';
 import 'pages/home.dart';
 import 'animations/slide_page_route.dart';
 
