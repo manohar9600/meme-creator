@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../classes/image_data.dart';
 import 'edit_options.dart';
-import 'edit_options2.dart';
 
 class EditPage extends StatefulWidget {
   final List<ImageData> selectedImages;
@@ -11,6 +10,27 @@ class EditPage extends StatefulWidget {
 }
 
 class _EditPage extends State<EditPage> {
+  List<Widget> stackWidgets = [];
+  int _count = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    Widget imageWidget = Container(
+      height: 300,
+      padding: EdgeInsets.all(0),
+      margin: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          fit: BoxFit.fitHeight,
+          image: AssetImage(widget.selectedImages[0].imageLoc),
+        ),
+      ),
+    );
+    stackWidgets.add(imageWidget);
+    _count += 1;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(body: getImageWidget());
@@ -20,16 +40,8 @@ class _EditPage extends State<EditPage> {
     // return
     return Column(
       children: <Widget>[
-        Container(
-          height: 300,
-          padding: EdgeInsets.all(0),
-          margin: EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            image: DecorationImage(
-              fit: BoxFit.fitHeight,
-              image: AssetImage(widget.selectedImages[0].imageLoc),
-            ),
-          ),
+        Stack(
+          children: stackWidgets.getRange(0, _count).toList(),
         ),
         getMenuBar()
       ],
@@ -45,7 +57,7 @@ class _EditPage extends State<EditPage> {
         child: Column(
           verticalDirection: VerticalDirection.up,
           children: <Widget>[
-            EditOptions(),
+            EditOptions(addFloatingWidget: addFloatingWidget),
             // EditOptions2()
           ],
         ),
@@ -55,5 +67,12 @@ class _EditPage extends State<EditPage> {
 
   Widget getHorizontalSeparation() {
     return Container(height: 1.0, color: Colors.black);
+  }
+
+  void addFloatingWidget(Widget floatingWidget) {
+    setState(() {
+      stackWidgets.add(floatingWidget);
+      _count += 1;
+    });
   }
 }

@@ -84,7 +84,6 @@ class _AddScreen extends State<AddScreen> {
     } else {
       selectedImages.remove(clickedImage);
     }
-    print('called');
   }
 
   void navigateToEditPage() {
