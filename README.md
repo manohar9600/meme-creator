@@ -1,6 +1,6 @@
-# hello_world
+# meme_creator
 
-A new Flutter project.
+A new Flutter application.
 
 ## Getting Started
 

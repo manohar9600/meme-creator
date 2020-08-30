@@ -28,6 +28,10 @@ class _EditOptions extends State<EditOptions> {
     );
   }
 
+  Widget getNewWidgetDummy() {
+    return Text("Dummy 🚗");
+  }
+
   Widget getListItem(Color color, IconData icon, String label) {
     return InkWell(
       child: Container(
