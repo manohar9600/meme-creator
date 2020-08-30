@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'dart:math';
+import 'package:badges/badges.dart';
 
 class EditOptions extends StatefulWidget {
   final Function addFloatingWidget;
@@ -26,10 +27,6 @@ class _EditOptions extends State<EditOptions> {
         ],
       ),
     );
-  }
-
-  Widget getNewWidgetDummy() {
-    return Text("Dummy 🚗");
   }
 
   Widget getListItem(Color color, IconData icon, String label) {
@@ -64,48 +61,84 @@ class _MoveableTextField extends State<MoveableTextField> {
   double yPosition = 10;
   double height = 50;
   double width = 100;
-  String text = "Icecream in summer 🌞";
+  String text = "";
+  bool _hasFocus = true;
+  FocusNode _node = FocusNode();
+  TextEditingController _controller = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _node.addListener(_handleFocusChange);
+    _controller.addListener(_handleTextInput);
+  }
+
+  void _handleFocusChange() {
+    if (_node.hasFocus != _hasFocus) {
+      setState(() {
+        _hasFocus = _node.hasFocus;
+      });
+    }
+  }
+
+  void _handleTextInput() {
+    text = _controller.text;
+    _controller.value = _controller.value.copyWith(
+      text: text,
+      selection:
+          TextSelection(baseOffset: text.length, extentOffset: text.length),
+      composing: TextRange.empty,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget textField = _editableTextField();
+    Widget focusedWidget = Badge(
+      badgeContent: _hasFocus
+          ? GestureDetector(
+              onPanUpdate: (tapInfo) {
+                setState(() {
+                  width = max(50, width + tapInfo.delta.dx);
+                  height = max(50, height + tapInfo.delta.dy);
+                });
+              },
+              child: Text("."),
+            )
+          : Container(),
+      badgeColor: Colors.blue,
+      position: BadgePosition.bottomRight(bottom: -10, right: -5),
+      child: Container(
+        height: height,
+        width: width,
+        padding: EdgeInsets.only(left: 5, top: 0),
+        decoration: _hasFocus
+            ? BoxDecoration(
+                shape: BoxShape.rectangle,
+                border: Border.all(color: Colors.black, width: 1.0),
+              )
+            : BoxDecoration(),
+        child: _editableTextField(),
+      ),
+    );
+
+    Widget nonFocusedWidget = Container(
+      height: height,
+      width: width,
+      padding: EdgeInsets.only(left: 5, top: 0),
+      decoration: _hasFocus
+          ? BoxDecoration(
+              shape: BoxShape.rectangle,
+              border: Border.all(color: Colors.black, width: 1.0),
+            )
+          : BoxDecoration(),
+      child: _editableTextField(),
+    );
+
     return Positioned(
-        top: yPosition,
-        left: xPosition,
-        child: GestureDetector(
-            onPanUpdate: (tapInfo) {
-              setState(() {
-                width = max(25, width + tapInfo.delta.dx);
-                height = max(25, height + tapInfo.delta.dy);
-              });
-            },
-            child: Stack(
-              children: <Widget>[
-                Container(
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    border: Border.all(color: Colors.black, width: 1.0),
-                  ),
-                  child: textField,
-                ),
-                Align(
-                  alignment: FractionalOffset.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.check_circle,
-                      color: Colors.blue,
-                    ),
-                  ),
-                )
-              ],
-            )));
+      top: yPosition,
+      left: xPosition,
+      child: _hasFocus ? focusedWidget : nonFocusedWidget,
+    );
   }
 
   Widget _editableTextField() {
@@ -116,12 +149,20 @@ class _MoveableTextField extends State<MoveableTextField> {
           yPosition += tapInfo.delta.dy;
         });
       },
-      child: Container(
-        margin: EdgeInsets.all(5),
-        height: height,
-        width: width,
-        child: Text(text),
+      child: TextField(
+        controller: _controller,
+        decoration: InputDecoration(
+            border: InputBorder.none, hintText: _hasFocus ? "Enter text" : ""),
+        autofocus: true,
+        maxLines: 120,
+        focusNode: _node,
       ),
     );
+  }
+
+  void dispose() {
+    _node.dispose();
+    _controller.dispose();
+    super.dispose();
   }
 }

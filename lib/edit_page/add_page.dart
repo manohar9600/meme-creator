@@ -183,14 +183,12 @@ class _ImageItemWidget extends State<ImageItemWidget> {
           ),
         ),
         isSelected
-            ? Align(
-                alignment: FractionalOffset.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Icon(
-                    Icons.check_circle,
-                    color: Colors.blue,
-                  ),
+            ? Positioned(
+                bottom: 3,
+                right: 3,
+                child: Icon(
+                  Icons.check_circle,
+                  color: Colors.blue,
                 ),
               )
             : Container()

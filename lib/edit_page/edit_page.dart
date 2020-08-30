@@ -33,7 +33,12 @@ class _EditPage extends State<EditPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: getImageWidget());
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).unfocus();
+      },
+      child: Scaffold(body: getImageWidget()),
+    );
   }
 
   Widget getImageWidget() {
