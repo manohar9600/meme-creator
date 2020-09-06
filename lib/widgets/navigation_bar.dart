@@ -22,10 +22,11 @@ class _NavigationBar extends State<NavigationBar> {
     return _buildNavigationBar();
   }
 
-  BottomNavigationBar _buildNavigationBar() {
-    return BottomNavigationBar(
+  Widget _buildNavigationBar() {
+    Widget navBar = BottomNavigationBar(
       currentIndex: widget.currentIndex,
       type: BottomNavigationBarType.fixed,
+      selectedItemColor: Color(int.parse("0xFFF46C00")),
       // iconSize: 30,
       showSelectedLabels: false,
       showUnselectedLabels: false,
@@ -33,6 +34,7 @@ class _NavigationBar extends State<NavigationBar> {
         _buildNavigationButton(_color, FeatherIcons.home, "Home"),
         _buildNavigationButton(_color, FeatherIcons.search, "Search"),
         _buildNavigationButton(_color, FeatherIcons.plusCircle, "Add"),
+        _buildNavigationButton(_color, FeatherIcons.bell, "Notifications"),
         _buildNavigationButton(_color, Icons.account_circle, "Profile")
       ],
       onTap: (index) {
@@ -41,6 +43,11 @@ class _NavigationBar extends State<NavigationBar> {
           widget.changeMainView(index); // widget. => calling parent function
         });
       },
+    );
+    return ClipRRect(
+      borderRadius: BorderRadius.only(
+          topRight: Radius.circular(25), topLeft: Radius.circular(25)),
+      child: navBar,
     );
   }
 

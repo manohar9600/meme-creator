@@ -94,50 +94,37 @@ class _MoveableTextField extends State<MoveableTextField> {
   @override
   Widget build(BuildContext context) {
     Widget focusedWidget = Badge(
-      badgeContent: _hasFocus
-          ? GestureDetector(
-              onPanUpdate: (tapInfo) {
-                setState(() {
-                  width = max(50, width + tapInfo.delta.dx);
-                  height = max(50, height + tapInfo.delta.dy);
-                });
-              },
-              child: Text("."),
-            )
-          : Container(),
-      badgeColor: Colors.blue,
-      position: BadgePosition.bottomRight(bottom: -10, right: -5),
-      child: Container(
-        height: height,
-        width: width,
-        padding: EdgeInsets.only(left: 5, top: 0),
-        decoration: _hasFocus
-            ? BoxDecoration(
-                shape: BoxShape.rectangle,
-                border: Border.all(color: Colors.black, width: 1.0),
-              )
-            : BoxDecoration(),
-        child: _editableTextField(),
-      ),
-    );
-
-    Widget nonFocusedWidget = Container(
-      height: height,
-      width: width,
-      padding: EdgeInsets.only(left: 5, top: 0),
-      decoration: _hasFocus
-          ? BoxDecoration(
-              shape: BoxShape.rectangle,
-              border: Border.all(color: Colors.black, width: 1.0),
-            )
-          : BoxDecoration(),
-      child: _editableTextField(),
-    );
+        badgeContent: GestureDetector(
+          onPanUpdate: (tapInfo) {
+            setState(() {
+              width = max(50, width + tapInfo.delta.dx);
+              height = max(50, height + tapInfo.delta.dy);
+            });
+          },
+          child: Text("."),
+        ),
+        badgeColor: Colors.blue,
+        showBadge: _hasFocus,
+        position: BadgePosition.bottomRight(bottom: -10, right: -5),
+        child: Expanded(
+          child: Container(
+            height: height,
+            width: width,
+            padding: EdgeInsets.only(left: 5, top: 0),
+            decoration: _hasFocus
+                ? BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    border: Border.all(color: Colors.black, width: 1.0),
+                  )
+                : BoxDecoration(),
+            child: _editableTextField(),
+          ),
+        ));
 
     return Positioned(
       top: yPosition,
       left: xPosition,
-      child: _hasFocus ? focusedWidget : nonFocusedWidget,
+      child: focusedWidget,
     );
   }
 
@@ -154,7 +141,8 @@ class _MoveableTextField extends State<MoveableTextField> {
         decoration: InputDecoration(
             border: InputBorder.none, hintText: _hasFocus ? "Enter text" : ""),
         autofocus: true,
-        maxLines: 120,
+        maxLines: null,
+        minLines: null,
         focusNode: _node,
       ),
     );

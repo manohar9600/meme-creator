@@ -12,6 +12,7 @@ class _AddScreen extends State<AddScreen> {
   List<ImageData> selectedImages = [];
   List<Widget> images;
   bool editPage = false;
+  bool _showNextIcon = true;
 
   _AddScreen() {
     this.images = [
@@ -55,12 +56,19 @@ class _AddScreen extends State<AddScreen> {
       ),
       title: Text("Edit", style: TextStyle(color: Colors.black)),
       actions: <Widget>[
-        IconButton(
-          icon: Icon(FeatherIcons.arrowRight, color: Colors.black),
-          onPressed: () {
-            navigateToEditPage();
-          },
-        ),
+        _showNextIcon
+            ? IconButton(
+                icon: Icon(FeatherIcons.arrowRight, color: Colors.black),
+                onPressed: () {
+                  navigateToEditPage();
+                  if (_showNextIcon) {
+                    setState(() {
+                      _showNextIcon = false;
+                    });
+                  }
+                },
+              )
+            : Container(),
       ],
     );
   }

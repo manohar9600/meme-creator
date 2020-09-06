@@ -10,9 +10,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Startup Name Generator",
+      title: "Meme Generator",
       home: MainScreen(),
-      theme: ThemeData(fontFamily: 'Inter'),
     );
   }
 }
@@ -34,7 +33,14 @@ class _MainScreen extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("MeMe Maker"),
+          title: Text(
+            "Me Me Creator",
+            style: TextStyle(
+                color: Color(int.parse("0xFF1A1A1A")),
+                fontWeight: FontWeight.w600),
+          ),
+          elevation: 0.0,
+          backgroundColor: Colors.white,
         ),
         body: tabs[_currentIndex],
         bottomNavigationBar: NavigationBar(
@@ -48,6 +54,7 @@ class _MainScreen extends State<MainScreen> {
         child: Text("Search"),
       ),
       Text("Edit screen"),
+      Text("Notifications"),
       Center(
         child: Text("Profile34we"),
       )
