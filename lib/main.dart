@@ -42,16 +42,30 @@ class _MainScreen extends State<MainScreen> {
           elevation: 0.0,
           backgroundColor: Colors.white,
         ),
-        body: tabs[_currentIndex],
-        bottomNavigationBar: NavigationBar(
-            currentIndex: _currentIndex, changeMainView: _updateMainScreen));
+        body: getBodywidget());
+  }
+
+  Widget getBodywidget() {
+    Widget bodyWidget = Stack(
+      children: <Widget>[
+        tabs[_currentIndex],
+        Container(
+          child: NavigationBarV2(
+              currentIndex: _currentIndex, changeMainView: _updateMainScreen),
+        )
+      ],
+    );
+    return bodyWidget;
   }
 
   List<Widget> getTabs() {
     final tabs = [
       Home(),
       Center(
-        child: Text("Search"),
+        child: Text(
+          "Search",
+          style: TextStyle(color: Colors.black),
+        ),
       ),
       Text("Edit screen"),
       Text("Notifications"),
@@ -63,13 +77,14 @@ class _MainScreen extends State<MainScreen> {
   }
 
   void _updateMainScreen(int index) {
-    setState(() {
-      if (index == 2) {
-        // add routing logic
-        Navigator.push(context, SlidePageRoute(widget: AddScreen()));
-      } else {
-        _currentIndex = index;
+    if (index == 2) {
+      Navigator.push(context, SlidePageRoute(widget: AddScreen()));
+    } else {
+      if (_currentIndex != index) {
+        setState(() {
+          _currentIndex = index;
+        });
       }
-    });
+    }
   }
 }
