@@ -87,27 +87,26 @@ class _NavigationBarV2 extends State<NavigationBarV2> {
     final String assetName = 'assets/icons/add-filled.svg';
     Color iconColor = Color(int.parse("0xFFF46C00"));
     Widget addIconWidget = Positioned(
-      top: -20,
-      child: Container(
-        decoration: BoxDecoration(
-            border: Border.all(width: 5, color: Colors.white),
-            color: Colors.white,
-            shape: BoxShape.circle),
-        child: FloatingActionButton(
-          elevation: 0,
-          backgroundColor: Colors.white,
-          child: SvgPicture.asset(
-            assetName,
-            color: iconColor,
-            width: 60,
-            height: 60,
-          ),
-          onPressed: () {
+        top: -20,
+        child: GestureDetector(
+          onTap: () {
             widget.changeMainView(2);
           },
-        ),
-      ),
-    );
+          child: Container(
+            // padding: EdgeInsets.all(1),
+            decoration: BoxDecoration(
+                // boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 4)],
+                border: Border.all(width: 5, color: Colors.white),
+                color: Colors.white,
+                shape: BoxShape.circle),
+            child: SvgPicture.asset(
+              assetName,
+              color: iconColor,
+              width: 55,
+              height: 55,
+            ),
+          ),
+        ));
     return addIconWidget;
   }
 
@@ -122,16 +121,11 @@ class _NavigationBarV2 extends State<NavigationBarV2> {
             color: Colors.white,
             boxShadow: [BoxShadow(color: Colors.grey, blurRadius: 4)],
             shape: BoxShape.circle),
-        child: FloatingActionButton(
-          onPressed: () => null,
-          elevation: 0,
-          backgroundColor: Colors.white,
-          child: SvgPicture.asset(
-            assetName,
-            color: iconColor,
-            width: 60,
-            height: 60,
-          ),
+        child: SvgPicture.asset(
+          assetName,
+          color: iconColor,
+          width: 55,
+          height: 55,
         ),
       ),
     );
