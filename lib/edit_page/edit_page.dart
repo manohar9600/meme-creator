@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import '../classes/image_data.dart';
 import 'edit_options.dart';
+import '../render/render.dart';
 
 class EditPage extends StatefulWidget {
   final List<ImageData> selectedImages;
@@ -12,6 +15,7 @@ class EditPage extends StatefulWidget {
 class _EditPage extends State<EditPage> {
   List<Widget> stackWidgets = [];
   int _count = 0;
+  final GlobalKey stackKey = new GlobalKey();
 
   @override
   void initState() {
@@ -23,7 +27,7 @@ class _EditPage extends State<EditPage> {
       decoration: BoxDecoration(
         image: DecorationImage(
           fit: BoxFit.fitHeight,
-          image: AssetImage(widget.selectedImages[0].imageLoc),
+          image: FileImage(File(widget.selectedImages[0].imageLoc)),
         ),
       ),
     );
@@ -33,6 +37,39 @@ class _EditPage extends State<EditPage> {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: _getAppBar(),
+      body: _getBodyWidget(),
+    );
+  }
+
+  Widget _getAppBar() {
+    return AppBar(
+      backgroundColor: Colors.white,
+      leading: IconButton(
+        icon: Icon(FeatherIcons.arrowLeft, color: Colors.black),
+        onPressed: () {
+          Navigator.pop(context, true);
+        },
+      ),
+      title: Text("Edit", style: TextStyle(color: Colors.black)),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(FeatherIcons.arrowRight, color: Colors.black),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => RenderWidget(
+                          stackKey: stackKey,
+                        )));
+          },
+        )
+      ],
+    );
+  }
+
+  Widget _getBodyWidget() {
     return GestureDetector(
       onTap: () {
         FocusScope.of(context).unfocus();
@@ -45,8 +82,11 @@ class _EditPage extends State<EditPage> {
     // return
     return Column(
       children: <Widget>[
-        Stack(
-          children: stackWidgets.getRange(0, _count).toList(),
+        RepaintBoundary(
+          key: stackKey,
+          child: Stack(
+            children: stackWidgets.getRange(0, _count).toList(),
+          ),
         ),
         getMenuBar()
       ],

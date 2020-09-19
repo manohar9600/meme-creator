@@ -1,5 +1,7 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
+import 'package:image_picker/image_picker.dart';
 import '../classes/image_data.dart';
 import 'edit_page.dart';
 
@@ -11,8 +13,8 @@ class AddScreen extends StatefulWidget {
 class _AddScreen extends State<AddScreen> {
   List<ImageData> selectedImages = [];
   List<Widget> images;
-  bool editPage = false;
-  bool _showNextIcon = true;
+  File _image;
+  final picker = ImagePicker();
 
   _AddScreen() {
     this.images = [
@@ -38,10 +40,7 @@ class _AddScreen extends State<AddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: getAppBar(),
-      body: !editPage
-          ? getBodyWidget()
-          : EditPage(selectedImages: selectedImages),
-      // bottomNavigationBar: NavigationBar(),
+      body: getBodyWidget(),
     );
   }
 
@@ -56,19 +55,16 @@ class _AddScreen extends State<AddScreen> {
       ),
       title: Text("Edit", style: TextStyle(color: Colors.black)),
       actions: <Widget>[
-        _showNextIcon
-            ? IconButton(
-                icon: Icon(FeatherIcons.arrowRight, color: Colors.black),
-                onPressed: () {
-                  navigateToEditPage();
-                  if (_showNextIcon) {
-                    setState(() {
-                      _showNextIcon = false;
-                    });
-                  }
-                },
-              )
-            : Container(),
+        IconButton(
+          icon: Icon(FeatherIcons.arrowRight, color: Colors.black),
+          onPressed: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        EditPage(selectedImages: selectedImages)));
+          },
+        )
       ],
     );
   }
@@ -77,8 +73,44 @@ class _AddScreen extends State<AddScreen> {
     return SafeArea(
       child: ListView(
         padding: EdgeInsets.symmetric(vertical: 20.0),
-        children: <Widget>[LocalImagesRow(images)],
+        children: <Widget>[
+          Container(
+              padding: EdgeInsets.only(left: 20.0),
+              // alignment: Alignment.topLeft,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  getTextNormalHeading("Local images"),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  LocalImagesRow(images)
+                ],
+              ))
+        ],
       ),
+    );
+  }
+
+  Widget getTextNormalHeading(String text) {
+    TextStyle style = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500);
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: Container(
+              alignment: Alignment.topLeft, child: Text(text, style: style)),
+        ),
+        Expanded(
+            child: Container(
+          margin: EdgeInsets.only(right: 10.0),
+          alignment: Alignment.topRight,
+          child: InkWell(
+              child: Text("More", style: style),
+              onTap: () {
+                getImage();
+              }),
+        ))
+      ],
     );
   }
 
@@ -94,9 +126,15 @@ class _AddScreen extends State<AddScreen> {
     }
   }
 
-  void navigateToEditPage() {
+  Future getImage() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
     setState(() {
-      editPage = true;
+      selectedImages.add(ImageData(imageLoc: pickedFile.path));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => EditPage(selectedImages: selectedImages)));
     });
   }
 }
@@ -111,28 +149,6 @@ class LocalImagesRow extends StatefulWidget {
 class _LocalImageRow extends State<LocalImagesRow> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-        padding: EdgeInsets.only(left: 20.0),
-        // alignment: Alignment.topLeft,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            getTextNormalHeading("Local images"),
-            SizedBox(
-              height: 10.0,
-            ),
-            getImagesRow()
-          ],
-        ));
-  }
-
-  Widget getTextNormalHeading(String text) {
-    TextStyle style = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500);
-    return Container(
-        alignment: Alignment.topLeft, child: Text(text, style: style));
-  }
-
-  Widget getImagesRow() {
     return Container(
       height: 110.0,
       // color: Colors.yellow,
