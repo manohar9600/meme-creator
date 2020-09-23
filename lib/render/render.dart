@@ -18,9 +18,14 @@ class RenderWidget extends StatefulWidget {
 
 class _RenderWidget extends State<RenderWidget> {
   Random rng = new Random();
-  File _imageFile;
+  Image renderedImage;
+  Uint8List _pngBytes;
+
   @override
   Widget build(BuildContext context) {
+    if (renderedImage == null) {
+      takeScreenshot();
+    }
     return Scaffold(appBar: getAppBar(), body: _getBodyWidget());
   }
 
@@ -38,10 +43,58 @@ class _RenderWidget extends State<RenderWidget> {
   }
 
   Widget _getBodyWidget() {
-    return FloatingActionButton(
-      child: Icon(FeatherIcons.download),
-      onPressed: () {
-        takeScreenshot();
+    Widget bodyWidget = Column(
+      children: <Widget>[
+        Container(
+          height: 300,
+          child: renderedImage != null
+              ? renderedImage
+              : Center(
+                  child: Text("Loading......"),
+                ),
+        ),
+        Container(
+          height: 60,
+          margin: EdgeInsets.only(top: 25),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                  child: Center(
+                child: _getButton(_share, 'SHARE'),
+              )),
+              Expanded(
+                child: Center(
+                  child: _getButton(_download, 'DOWNLOAD'),
+                ),
+              )
+            ],
+          ),
+        )
+      ],
+    );
+    return bodyWidget;
+  }
+
+  Widget _getButton(Function onclick, String text) {
+    return InkWell(
+      child: Container(
+        width: 120,
+        height: 50,
+        decoration: BoxDecoration(
+            color: Color(int.parse("0xFFF46C00")),
+            borderRadius: BorderRadius.all(Radius.circular(100)),
+            boxShadow: [
+              BoxShadow(color: Colors.grey, blurRadius: 2, offset: Offset(1, 1))
+            ]),
+        child: Center(
+            child: Text(
+          text,
+          style: TextStyle(
+              color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+        )),
+      ),
+      onTap: () {
+        onclick();
       },
     );
   }
@@ -50,32 +103,21 @@ class _RenderWidget extends State<RenderWidget> {
     RenderRepaintBoundary boundary =
         widget.stackKey.currentContext.findRenderObject();
     ui.Image image = await boundary.toImage();
-    // Directory appDir = await getApplicationDocumentsDirectory();
-    // final directory = (await appDir.create(recursive: true)).path;
-    // ByteData byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    // Uint8List pngBytes = byteData.buffer.asUint8List();
-    // File imgFile = new File('$directory/screenshot${rng.nextInt(200)}.png');
-    // setState(() {
-    //   _imageFile = imgFile;
-    // });
-    // _savefile(_imageFile);
-    // imgFile.writeAsBytes(pngBytes);
+    ByteData byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    Uint8List pngBytes = byteData.buffer.asUint8List();
+    setState(() {
+      _pngBytes = pngBytes;
+      renderedImage = Image.memory(pngBytes);
+    });
   }
 
-  _savefile(File file) async {
-    await _askPermission();
-    Directory appDir = Directory('/storage/emulated/0/meme_creator/');
-    final directory = (await appDir.create(recursive: true)).path;
-    final result = await ImageGallerySaver.saveImage(
-        Uint8List.fromList(await file.readAsBytes()),
-        name: "hello");
+  void _share() {
+    print("share");
+  }
+
+  void _download() async {
+    print("download");
+    final result = ImageGallerySaver.saveImage(_pngBytes);
     print(result);
-  }
-
-  _askPermission() async {
-    Map<Permission, PermissionStatus> statuses =
-        await [Permission.photos, Permission.storage].request();
-    print(statuses[Permission.photos]);
-    print(statuses[Permission.storage]);
   }
 }

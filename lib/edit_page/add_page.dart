@@ -17,7 +17,11 @@ class _AddScreen extends State<AddScreen> {
   final picker = ImagePicker();
 
   _AddScreen() {
-    this.images = [
+    this.images = _getRecentLocalImages();
+  }
+
+  List<Widget> _getRecentLocalImages() {
+    List<Widget> imageWidgets = [
       ImageItemWidget(
           imageData: ImageData(imageLoc: "images/template1.jpg"),
           onImageClick: _onImageClick),
@@ -34,6 +38,7 @@ class _AddScreen extends State<AddScreen> {
           imageData: ImageData(imageLoc: "images/template1.jpg"),
           onImageClick: _onImageClick),
     ];
+    return imageWidgets;
   }
 
   @override

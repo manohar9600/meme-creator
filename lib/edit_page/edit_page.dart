@@ -21,15 +21,13 @@ class _EditPage extends State<EditPage> {
   void initState() {
     super.initState();
     Widget imageWidget = Container(
-      height: 300,
-      padding: EdgeInsets.all(0),
-      margin: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          fit: BoxFit.fitHeight,
-          image: FileImage(File(widget.selectedImages[0].imageLoc)),
-        ),
-      ),
+      child: Image.file(File(widget.selectedImages[0].imageLoc)),
+      // decoration: BoxDecoration(
+      //   image: DecorationImage(
+      //     fit: BoxFit.fitHeight,
+      //     image: FileImage(File(widget.selectedImages[0].imageLoc)),
+      //   ),
+      // ),
     );
     stackWidgets.add(imageWidget);
     _count += 1;
@@ -82,10 +80,15 @@ class _EditPage extends State<EditPage> {
     // return
     return Column(
       children: <Widget>[
-        RepaintBoundary(
-          key: stackKey,
-          child: Stack(
-            children: stackWidgets.getRange(0, _count).toList(),
+        Container(
+          height: 300,
+          padding: EdgeInsets.all(0),
+          margin: EdgeInsets.all(20),
+          child: RepaintBoundary(
+            key: stackKey,
+            child: Stack(
+              children: stackWidgets.getRange(0, _count).toList(),
+            ),
           ),
         ),
         getMenuBar()

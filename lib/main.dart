@@ -3,6 +3,9 @@ import 'widgets/navigation_bar.dart';
 import 'edit_page/add_page.dart';
 import 'pages/home.dart';
 import 'animations/slide_page_route.dart';
+import 'package:image_picker/image_picker.dart';
+import 'classes/image_data.dart';
+import 'edit_page/edit_page.dart';
 
 void main() => runApp(MyApp());
 
@@ -78,7 +81,8 @@ class _MainScreen extends State<MainScreen> {
 
   void _updateMainScreen(int index) {
     if (index == 2) {
-      Navigator.push(context, SlidePageRoute(widget: AddScreen()));
+      // Navigator.push(context, SlidePageRoute(widget: AddScreen()));
+      getImage();
     } else {
       if (_currentIndex != index) {
         setState(() {
@@ -86,5 +90,22 @@ class _MainScreen extends State<MainScreen> {
         });
       }
     }
+  }
+
+  Future getImage() async {
+    List<ImageData> selectedImages = [];
+    final picker = ImagePicker();
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    setState(() {
+      if (pickedFile != null) {
+        selectedImages.add(ImageData(imageLoc: pickedFile.path));
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) =>
+                    EditPage(selectedImages: selectedImages)));
+      }
+    });
   }
 }
