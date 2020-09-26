@@ -72,27 +72,31 @@ class _EditPage extends State<EditPage> {
       onTap: () {
         FocusScope.of(context).unfocus();
       },
-      child: Scaffold(body: getImageWidget()),
+      child: getImageWidget(),
     );
   }
 
   Widget getImageWidget() {
     // return
-    return Column(
-      children: <Widget>[
-        Container(
-          height: 300,
-          padding: EdgeInsets.all(0),
-          margin: EdgeInsets.all(20),
-          child: RepaintBoundary(
-            key: stackKey,
-            child: Stack(
-              children: stackWidgets.getRange(0, _count).toList(),
+    return Center(
+      child: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Container(
+              height: 300,
+              padding: EdgeInsets.all(0),
+              margin: EdgeInsets.all(20),
+              child: RepaintBoundary(
+                key: stackKey,
+                child: Stack(
+                  children: stackWidgets.getRange(0, _count).toList(),
+                ),
+              ),
             ),
-          ),
+            getMenuBar()
+          ],
         ),
-        getMenuBar()
-      ],
+      ),
     );
   }
 
