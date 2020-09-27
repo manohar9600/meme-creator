@@ -36,6 +36,7 @@ class _EditPage extends State<EditPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
       appBar: _getAppBar(),
       body: _getBodyWidget(),
     );
@@ -78,32 +79,29 @@ class _EditPage extends State<EditPage> {
 
   Widget getImageWidget() {
     // return
-    return Center(
-      child: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Container(
-              height: 300,
-              padding: EdgeInsets.all(0),
-              margin: EdgeInsets.all(20),
-              child: RepaintBoundary(
-                key: stackKey,
-                child: Stack(
-                  children: stackWidgets.getRange(0, _count).toList(),
-                ),
+    return Column(
+      children: <Widget>[
+        Flexible(
+          fit: FlexFit.tight,
+          flex: 8,
+          child: Container(
+            padding: EdgeInsets.all(0),
+            margin: EdgeInsets.only(bottom: 20, top: 5),
+            child: RepaintBoundary(
+              key: stackKey,
+              child: Stack(
+                children: stackWidgets.getRange(0, _count).toList(),
               ),
             ),
-            getMenuBar()
-          ],
+          ),
         ),
-      ),
+        Flexible(flex: 1, fit: FlexFit.tight, child: getMenuBar())
+      ],
     );
   }
 
   Widget getMenuBar() {
     return Container(
-      height: MediaQuery.of(context).size.height - 420,
-      // color: Colors.yellow,
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Column(

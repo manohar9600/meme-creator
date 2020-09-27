@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'dart:math';
 import 'package:badges/badges.dart';
+import 'package:flutter_xlider/flutter_xlider.dart';
 
 class EditOptions extends StatefulWidget {
   final Function addFloatingWidget;
