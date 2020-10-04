@@ -20,15 +20,10 @@ class _EditPage extends State<EditPage> {
   @override
   void initState() {
     super.initState();
-    Widget imageWidget = Container(
+    Widget imageWidget = Center(
+        child: Container(
       child: Image.file(File(widget.selectedImages[0].imageLoc)),
-      // decoration: BoxDecoration(
-      //   image: DecorationImage(
-      //     fit: BoxFit.fitHeight,
-      //     image: FileImage(File(widget.selectedImages[0].imageLoc)),
-      //   ),
-      // ),
-    );
+    ));
     stackWidgets.add(imageWidget);
     _count += 1;
   }
@@ -56,6 +51,8 @@ class _EditPage extends State<EditPage> {
         IconButton(
           icon: Icon(FeatherIcons.arrowRight, color: Colors.black),
           onPressed: () {
+            // unfocuses all widgets.
+            WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
             Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -71,7 +68,7 @@ class _EditPage extends State<EditPage> {
   Widget _getBodyWidget() {
     return GestureDetector(
       onTap: () {
-        FocusScope.of(context).unfocus();
+        WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
       },
       child: getImageWidget(),
     );

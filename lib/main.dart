@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'widgets/navigation_bar.dart';
-import 'edit_page/add_page.dart';
 import 'pages/home.dart';
-import 'animations/slide_page_route.dart';
 import 'package:image_picker/image_picker.dart';
 import 'classes/image_data.dart';
 import 'edit_page/edit_page.dart';

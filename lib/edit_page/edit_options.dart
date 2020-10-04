@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
-import 'dart:math';
-import 'package:badges/badges.dart';
-import 'package:flutter_xlider/flutter_xlider.dart';
+import 'text_edit.dart';
 
 class EditOptions extends StatefulWidget {
   final Function addFloatingWidget;
@@ -40,118 +38,14 @@ class _EditOptions extends State<EditOptions> {
         ),
       ),
       onTap: () {
-        widget.addFloatingWidget(getTextField());
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => MoveableTextField(
+                      intialText: "",
+                      addFloatingWidget: widget.addFloatingWidget,
+                    )));
       },
     );
-  }
-
-  Widget getTextField() {
-    return MoveableTextField();
-  }
-}
-
-class MoveableTextField extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return _MoveableTextField();
-  }
-}
-
-class _MoveableTextField extends State<MoveableTextField> {
-  double xPosition = 10;
-  double yPosition = 10;
-  double height = 50;
-  double width = 100;
-  String text = "";
-  bool _hasFocus = true;
-  FocusNode _node = FocusNode();
-  TextEditingController _controller = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    _node.addListener(_handleFocusChange);
-    _controller.addListener(_handleTextInput);
-  }
-
-  void _handleFocusChange() {
-    if (_node.hasFocus != _hasFocus) {
-      setState(() {
-        _hasFocus = _node.hasFocus;
-      });
-    }
-  }
-
-  void _handleTextInput() {
-    text = _controller.text;
-    _controller.value = _controller.value.copyWith(
-      text: text,
-      selection:
-          TextSelection(baseOffset: text.length, extentOffset: text.length),
-      composing: TextRange.empty,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    Widget focusedWidget = Badge(
-        badgeContent: GestureDetector(
-          onPanUpdate: (tapInfo) {
-            setState(() {
-              width = max(50, width + tapInfo.delta.dx);
-              height = max(50, height + tapInfo.delta.dy);
-            });
-          },
-          child: Text("."),
-        ),
-        badgeColor: Colors.blue,
-        showBadge: _hasFocus,
-        position: BadgePosition.bottomRight(bottom: -10, right: -5),
-        child: Expanded(
-          child: Container(
-            height: height,
-            width: width,
-            padding: EdgeInsets.only(left: 5, top: 0),
-            decoration: _hasFocus
-                ? BoxDecoration(
-                    shape: BoxShape.rectangle,
-                    border: Border.all(color: Colors.black, width: 1.0),
-                  )
-                : BoxDecoration(),
-            child: _editableTextField(),
-          ),
-        ));
-
-    return Positioned(
-      top: yPosition,
-      left: xPosition,
-      child: focusedWidget,
-    );
-  }
-
-  Widget _editableTextField() {
-    return GestureDetector(
-      onPanUpdate: (tapInfo) {
-        setState(() {
-          xPosition += tapInfo.delta.dx;
-          yPosition += tapInfo.delta.dy;
-        });
-      },
-      child: TextField(
-        controller: _controller,
-        decoration: InputDecoration(
-            border: InputBorder.none, hintText: _hasFocus ? "Enter text" : ""),
-        autofocus: true,
-        maxLines: null,
-        minLines: null,
-        focusNode: _node,
-      ),
-    );
-  }
-
-  void dispose() {
-    _node.dispose();
-    _controller.dispose();
-    super.dispose();
   }
 }
