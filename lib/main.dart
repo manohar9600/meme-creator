@@ -63,16 +63,37 @@ class _MainScreen extends State<MainScreen> {
     final tabs = [
       Home(),
       Center(
-        child: Text(
-          "Search",
-          style: TextStyle(color: Colors.black),
-        ),
-      ),
-      Text("Edit screen"),
-      Text("Notifications"),
+          child: Text(
+        "Coming soon....",
+        style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+            color: Color(int.parse("0xFF333333"))),
+      )),
       Center(
-        child: Text("Profile34we"),
-      )
+          child: Text(
+        "Coming soon....",
+        style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+            color: Color(int.parse("0xFF333333"))),
+      )),
+      Center(
+          child: Text(
+        "Coming soon....",
+        style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+            color: Color(int.parse("0xFF333333"))),
+      )),
+      Center(
+          child: Text(
+        "Coming soon....",
+        style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w500,
+            color: Color(int.parse("0xFF333333"))),
+      ))
     ];
     return tabs;
   }

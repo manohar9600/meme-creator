@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -6,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'package:image_gallery_saver/image_gallery_saver.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class RenderWidget extends StatefulWidget {
   final stackKey;
@@ -20,13 +17,15 @@ class _RenderWidget extends State<RenderWidget> {
   Random rng = new Random();
   Image renderedImage;
   Uint8List _pngBytes;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
     if (renderedImage == null) {
       takeScreenshot();
     }
-    return Scaffold(appBar: getAppBar(), body: _getBodyWidget());
+    return Scaffold(
+        key: _scaffoldKey, appBar: getAppBar(), body: _getBodyWidget());
   }
 
   Widget getAppBar() {
@@ -35,7 +34,7 @@ class _RenderWidget extends State<RenderWidget> {
       leading: IconButton(
         icon: Icon(FeatherIcons.arrowLeft, color: Colors.black),
         onPressed: () {
-          print('back');
+          Navigator.pop(context);
         },
       ),
       title: Text("Render", style: TextStyle(color: Colors.black)),
@@ -100,6 +99,9 @@ class _RenderWidget extends State<RenderWidget> {
   }
 
   void takeScreenshot() async {
+    // unfocuses all widgets.
+    WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
+    await Future.delayed(Duration(seconds: 2));
     RenderRepaintBoundary boundary =
         widget.stackKey.currentContext.findRenderObject();
     ui.Image image = await boundary.toImage();
@@ -113,11 +115,39 @@ class _RenderWidget extends State<RenderWidget> {
 
   void _share() {
     print("share");
+    final snackBar = SnackBar(
+      backgroundColor: Colors.white,
+      content: Container(
+          height: 50,
+          decoration: BoxDecoration(
+              color: Colors.grey,
+              borderRadius: BorderRadius.all(Radius.circular(100))),
+          child: Center(
+              child: Text(
+            "Feature coming soon.....",
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ))),
+      duration: Duration(seconds: 2),
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
   }
 
   void _download() async {
-    print("download");
-    final result = ImageGallerySaver.saveImage(_pngBytes);
-    print(result);
+    ImageGallerySaver.saveImage(_pngBytes);
+    final snackBar = SnackBar(
+      backgroundColor: Colors.white,
+      content: Container(
+          height: 50,
+          decoration: BoxDecoration(
+              color: Colors.grey,
+              borderRadius: BorderRadius.all(Radius.circular(100))),
+          child: Center(
+              child: Text(
+            "Download sucessfull!",
+            style: TextStyle(color: Colors.white, fontSize: 16),
+          ))),
+      duration: Duration(seconds: 2),
+    );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
   }
 }

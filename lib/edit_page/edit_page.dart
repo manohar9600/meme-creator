@@ -51,8 +51,6 @@ class _EditPage extends State<EditPage> {
         IconButton(
           icon: Icon(FeatherIcons.arrowRight, color: Colors.black),
           onPressed: () {
-            // unfocuses all widgets.
-            WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
             Navigator.push(
                 context,
                 MaterialPageRoute(

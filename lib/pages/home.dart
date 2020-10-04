@@ -10,7 +10,7 @@ class _Home extends State<Home> {
   Widget build(BuildContext context) {
     return Center(
         child: Text(
-      "HOME",
+      "Coming soon....",
       style: TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.w500,

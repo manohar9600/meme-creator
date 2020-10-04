@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'dart:math';
 import 'package:badges/badges.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Coords {
   Key previousWidgetKey;
@@ -14,6 +15,7 @@ class Coords {
 class _TextStyle {
   FontStyle fontStyle = FontStyle.normal;
   FontWeight fontWeight = FontWeight.normal;
+  Color textColor = Colors.white;
 }
 
 class MoveableTextField extends StatefulWidget {
@@ -37,6 +39,7 @@ class _MoveableTextField extends State<MoveableTextField> {
   TextEditingController _controller;
   _TextStyle textStyle = _TextStyle();
   List activeTextControls = [false, false, false];
+  bool colorPicker = false;
 
   @override
   void initState() {
@@ -78,7 +81,7 @@ class _MoveableTextField extends State<MoveableTextField> {
         Opacity(
           opacity: 0.4,
           child: Container(
-            color: Colors.black,
+            color: Colors.black38,
           ),
         ),
         AppBar(
@@ -108,7 +111,8 @@ class _MoveableTextField extends State<MoveableTextField> {
         Center(
           child: _getTextWidget(),
         ),
-        getWeightControls()
+        colorPicker ? getColorController() : getWeightControls(),
+        colorPicker ? getTextToggle() : getColorToggle()
       ],
     );
   }
@@ -129,7 +133,7 @@ class _MoveableTextField extends State<MoveableTextField> {
       maxLines: null,
       minLines: null,
       style: TextStyle(
-          color: Colors.white,
+          color: textStyle.textColor,
           fontSize: fontSize,
           fontWeight: textStyle.fontWeight,
           fontStyle: textStyle.fontStyle),
@@ -171,7 +175,7 @@ class _MoveableTextField extends State<MoveableTextField> {
           child: Text(text,
               style: TextStyle(
                   color: Colors.white,
-                  fontSize: 35.0,
+                  fontSize: 30.0,
                   fontWeight: fontWeight,
                   fontStyle: fontStyle))),
     );
@@ -215,6 +219,94 @@ class _MoveableTextField extends State<MoveableTextField> {
           });
         }
     }
+  }
+
+  Widget getColorToggle() {
+    final String assetName = 'assets/icons/color-wheel.svg';
+    return Align(
+        alignment: Alignment.centerRight,
+        child: GestureDetector(
+            onTap: () {
+              setState(() {
+                colorPicker = true;
+              });
+            },
+            child: Container(
+              margin: EdgeInsets.only(right: 5),
+              child: SvgPicture.asset(
+                assetName,
+                width: 35,
+                height: 35,
+              ),
+            )));
+  }
+
+  Widget getTextToggle() {
+    return Align(
+        alignment: Alignment.centerRight,
+        child: GestureDetector(
+            onTap: () {
+              setState(() {
+                colorPicker = false;
+              });
+            },
+            child: Container(
+              // margin: EdgeInsets.only(right: 5),
+              width: 35,
+              height: 35,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white70),
+                borderRadius: BorderRadius.circular(50),
+              ),
+              child: Center(
+                child: Text(
+                  'A',
+                  style: TextStyle(
+                      fontSize: 25,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w500),
+                ),
+              ),
+            )));
+  }
+
+  Widget getColorController() {
+    return Align(
+      alignment: Alignment.bottomCenter,
+      child: Container(
+        height: 55,
+        child: Flex(
+          direction: Axis.horizontal,
+          children: <Widget>[
+            getColor(Colors.brown),
+            getColor(Color(int.parse("0xFFFE2712"))),
+            getColor(Colors.orange),
+            getColor(Color(int.parse("0xFFFF00FF"))),
+            getColor(Colors.white),
+            getColor(Colors.black),
+            getColor(Colors.yellow),
+            getColor(Colors.green),
+            getColor(Color(int.parse("0xFF0247FE"))),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget getColor(Color color) {
+    return Flexible(
+      child: GestureDetector(
+        onTap: () {
+          setState(() {
+            textStyle.textColor = color;
+          });
+        },
+        child: Container(
+          margin: EdgeInsets.only(left: 0),
+          color: color,
+        ),
+      ),
+    );
   }
 }
 
@@ -331,9 +423,10 @@ class _MovableWidget extends State<MovableWidget> {
           child: Text(
             _text,
             style: TextStyle(
-                color: Colors.white,
-                fontWeight: textStyle.fontWeight,
-                fontStyle: textStyle.fontStyle),
+              color: textStyle.textColor,
+              fontWeight: textStyle.fontWeight,
+              fontStyle: textStyle.fontStyle,
+            ),
           ),
         ));
   }
