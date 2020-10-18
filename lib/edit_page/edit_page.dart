@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import '../classes/image_data.dart';
@@ -22,7 +21,7 @@ class _EditPage extends State<EditPage> {
     super.initState();
     Widget imageWidget = Center(
         child: Container(
-      child: Image.file(File(widget.selectedImages[0].imageLoc)),
+      child: Image.memory(widget.selectedImages[0].imageData),
     ));
     stackWidgets.add(imageWidget);
     _count += 1;

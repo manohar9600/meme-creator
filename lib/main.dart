@@ -1,9 +1,12 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'widgets/navigation_bar.dart';
 import 'pages/home.dart';
 import 'package:image_picker/image_picker.dart';
 import 'classes/image_data.dart';
+import 'grid_selection/grid_selector.dart';
 import 'edit_page/edit_page.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 
 void main() => runApp(MyApp());
 
@@ -101,13 +104,36 @@ class _MainScreen extends State<MainScreen> {
   void _updateMainScreen(int index) {
     if (index == 2) {
       // Navigator.push(context, SlidePageRoute(widget: AddScreen()));
-      getImage();
+      getImages();
     } else {
       if (_currentIndex != index) {
         setState(() {
           _currentIndex = index;
         });
       }
+    }
+  }
+
+  Future getImages() async {
+    List<ImageData> selectedImages = [];
+    List<Asset> resultList;
+    try {
+      resultList = await MultiImagePicker.pickImages(maxImages: 4);
+    } on Exception catch (e) {
+      String error = e.toString();
+      print(error);
+    }
+    if (resultList != null) {
+      for (Asset e in resultList) {
+        final byteData = await e.getByteData();
+        Uint8List pngBytes = byteData.buffer.asUint8List();
+        selectedImages.add(ImageData(imageData: pngBytes));
+      }
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) =>
+                  GridSelector(selectedImages: selectedImages)));
     }
   }
 
