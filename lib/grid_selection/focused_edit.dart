@@ -35,6 +35,28 @@ class _FocusedEditState extends State<FocusedEdit> {
 
   @override
   Widget build(BuildContext context) {
+    Widget zoomableWidget = GestureDetector(
+      onScaleUpdate: (ScaleUpdateDetails details) {
+        double presentScale = details.scale - 1;
+        if (presentScale < 0) {
+          presentScale = presentScale * 2;
+        } else {
+          presentScale = presentScale * 1.3;
+        }
+        scale = _previousScale + presentScale;
+        widget.updateImageZoom(scale);
+        setState(() {});
+      },
+      onScaleEnd: (ScaleEndDetails details) {
+        _previousScale = scale;
+        setState(() {});
+      },
+      child: Transform(
+        alignment: Alignment.center,
+        transform: Matrix4.diagonal3(Vector3(scale, scale, scale)),
+        child: widget.child,
+      ),
+    );
     return Scaffold(
         // appBar: AppBar(),
         backgroundColor: Colors.transparent,
@@ -56,32 +78,7 @@ class _FocusedEditState extends State<FocusedEdit> {
                 child: Container(
                     width: widget.childSize.width,
                     height: widget.childSize.height,
-                    child: ClipRect(
-                        child: GestureDetector(
-                      onScaleUpdate: (ScaleUpdateDetails details) {
-                        double presentScale = details.scale - 1;
-                        if (presentScale < 0) {
-                          presentScale = presentScale * 2;
-                        } else {
-                          presentScale = presentScale * 1.3;
-                        }
-                        scale = _previousScale + presentScale;
-                        widget.updateImageZoom(scale);
-                        setState(() {});
-                      },
-                      onScaleEnd: (ScaleEndDetails details) {
-                        _previousScale = scale;
-                        setState(() {});
-                      },
-                      child: Transform(
-                        alignment: Alignment.center,
-                        transform:
-                            Matrix4.diagonal3(Vector3(scale, scale, scale)),
-                        child: widget.child,
-                      ),
-                    )
-                        // child: widget.child,
-                        )),
+                    child: ClipRect(child: zoomableWidget)),
               ),
             ],
           ),
