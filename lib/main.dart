@@ -129,28 +129,20 @@ class _MainScreen extends State<MainScreen> {
         Uint8List pngBytes = byteData.buffer.asUint8List();
         selectedImages.add(ImageData(imageData: pngBytes));
       }
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) =>
-                  GridSelector(selectedImages: selectedImages)));
-    }
-  }
-
-  Future getImage() async {
-    List<ImageData> selectedImages = [];
-    final picker = ImagePicker();
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
-
-    setState(() {
-      if (pickedFile != null) {
-        selectedImages.add(ImageData(imageLoc: pickedFile.path));
+      if (selectedImages.length == 1) {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => EditPage(
+                      singleImage: selectedImages[0],
+                    )));
+      } else {
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    EditPage(selectedImages: selectedImages)));
+                    GridSelector(selectedImages: selectedImages)));
       }
-    });
+    }
   }
 }

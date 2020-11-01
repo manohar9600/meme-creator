@@ -69,28 +69,38 @@ class _GridWidget extends State<GridWidget> {
               context,
               MaterialPageRoute(
                   builder: (context) => G1(
-                        selectedImages: widget.selectedImages,
-                      )));
+                      selectedImages: widget.selectedImages,
+                      crossAxisCount: 1)));
         },
       ),
-      Container(
-        padding: EdgeInsets.all(15),
-        child: CustomPaint(
-          painter: Grid2N2(linePaint: linePaint),
+      GestureDetector(
+        child: Container(
+          padding: EdgeInsets.all(15),
+          child: CustomPaint(
+            painter: Grid2N2(linePaint: linePaint),
+          ),
         ),
+        onTap: () {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => G1(
+                      selectedImages: widget.selectedImages,
+                      crossAxisCount: 2)));
+        },
       ),
-      Container(
-        padding: EdgeInsets.all(15),
-        child: CustomPaint(
-          painter: Grid2N3(linePaint: linePaint),
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.all(15),
-        child: CustomPaint(
-          painter: Grid2N4(linePaint: linePaint),
-        ),
-      ),
+      // Container(
+      //   padding: EdgeInsets.all(15),
+      //   child: CustomPaint(
+      //     painter: Grid2N3(linePaint: linePaint),
+      //   ),
+      // ),
+      // Container(
+      //   padding: EdgeInsets.all(15),
+      //   child: CustomPaint(
+      //     painter: Grid2N4(linePaint: linePaint),
+      //   ),
+      // ),
     ];
     Widget gridView = GridView.count(
       shrinkWrap: true,

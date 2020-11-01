@@ -1,12 +1,16 @@
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
-import '../classes/image_data.dart';
 import 'edit_options.dart';
 import '../render/render.dart';
+import '../classes/image_data.dart';
 
 class EditPage extends StatefulWidget {
-  final List<ImageData> selectedImages;
-  EditPage({this.selectedImages});
+  final GlobalKey imageKey;
+  final ImageData singleImage;
+  EditPage({this.imageKey, this.singleImage});
   @override
   _EditPage createState() => _EditPage();
 }
@@ -19,12 +23,16 @@ class _EditPage extends State<EditPage> {
   @override
   void initState() {
     super.initState();
-    Widget imageWidget = Center(
-        child: Container(
-      child: Image.memory(widget.selectedImages[0].imageData),
-    ));
-    stackWidgets.add(imageWidget);
-    _count += 1;
+    if (widget.singleImage == null) {
+      takeScreenshot();
+    } else {
+      Widget imageWidget = Center(
+          child: Container(
+        child: Image.memory(widget.singleImage.imageData),
+      ));
+      stackWidgets.add(imageWidget);
+      _count += 1;
+    }
   }
 
   @override
@@ -115,7 +123,27 @@ class _EditPage extends State<EditPage> {
 
   void addFloatingWidget(Widget floatingWidget) {
     setState(() {
-      stackWidgets.add(floatingWidget);
+      if (stackWidgets.length != 0) {
+        stackWidgets.add(floatingWidget);
+        _count += 1;
+      }
+    });
+  }
+
+  void takeScreenshot() async {
+    // unfocuses all widgets.
+    WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
+    RenderRepaintBoundary boundary =
+        widget.imageKey.currentContext.findRenderObject();
+    ui.Image image = await boundary.toImage();
+    ByteData byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+    Uint8List pngBytes = byteData.buffer.asUint8List();
+    Widget imageWidget = Center(
+        child: Container(
+      child: Image.memory(pngBytes),
+    ));
+    setState(() {
+      stackWidgets.add(imageWidget);
       _count += 1;
     });
   }

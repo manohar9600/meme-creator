@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
+import 'package:vector_math/vector_math_64.dart' show Vector3;
 import '../../classes/image_data.dart';
+import '../../edit_page/edit_page.dart';
+import '../focused_edit.dart';
 
 class G1 extends StatelessWidget {
   final List<ImageData> selectedImages;
-  G1({this.selectedImages});
+  final int crossAxisCount;
+  final GlobalKey imageKey = new GlobalKey();
+  G1({this.selectedImages, this.crossAxisCount});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _getAppBar(context),
       body: MainWidget(
-        selectedImages: selectedImages,
-      ),
+          selectedImages: selectedImages,
+          imageKey: imageKey,
+          crossAxisCount: this.crossAxisCount),
     );
   }
 
@@ -29,7 +35,12 @@ class G1 extends StatelessWidget {
         IconButton(
           icon: Icon(FeatherIcons.arrowRight, color: Colors.black),
           onPressed: () {
-            print("TODO");
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => EditPage(
+                          imageKey: imageKey,
+                        )));
           },
         )
       ],
@@ -39,7 +50,9 @@ class G1 extends StatelessWidget {
 
 class MainWidget extends StatefulWidget {
   final List<ImageData> selectedImages;
-  MainWidget({this.selectedImages});
+  final Key imageKey;
+  final int crossAxisCount;
+  MainWidget({this.selectedImages, this.imageKey, this.crossAxisCount});
   @override
   _MainWidget createState() => _MainWidget();
 }
@@ -49,25 +62,26 @@ class _MainWidget extends State<MainWidget> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     final widgetHeight = 400.0;
+    final int rowCount = widget.selectedImages.length ~/ widget.crossAxisCount;
     /*24 is for notification bar on Android*/
-    final double itemHeight = widgetHeight / widget.selectedImages.length;
-    final double itemWidth = size.width;
+    final double itemHeight = widgetHeight / rowCount;
+    final double itemWidth = size.width / widget.crossAxisCount;
 
     Widget gridWidget = GridView.count(
-      crossAxisCount: 1,
+      crossAxisCount: widget.crossAxisCount,
       shrinkWrap: true,
       childAspectRatio: (itemWidth / itemHeight),
       children: List.generate(widget.selectedImages.length, (index) {
         return DraggableWidget(
-          selectedImage: widget.selectedImages[index],
-          width: size.width,
-        );
+            selectedImage: widget.selectedImages[index],
+            width: itemWidth,
+            height: itemHeight);
       }),
     );
     Widget finalWidget = Container(
       height: widgetHeight,
       margin: EdgeInsets.only(top: 50, bottom: 80),
-      child: gridWidget,
+      child: RepaintBoundary(key: widget.imageKey, child: gridWidget),
     );
 
     return finalWidget;
@@ -76,55 +90,79 @@ class _MainWidget extends State<MainWidget> {
 
 class DragData {
   Function updatePrevious;
-  Widget draggedWidget;
-  DragData(Function updatePrevious, Widget draggedWidget) {
+  ImageData selectedImage;
+  DragData(Function updatePrevious, ImageData selectedImage) {
     this.updatePrevious = updatePrevious;
-    this.draggedWidget = draggedWidget;
+    this.selectedImage = selectedImage;
   }
 }
 
 class DraggableWidget extends StatefulWidget {
   final ImageData selectedImage;
   final width;
-  DraggableWidget({Key key, this.selectedImage, this.width}) : super(key: key);
+  final height;
+  DraggableWidget({this.selectedImage, this.width, this.height});
 
   @override
   _DraggableWidgetState createState() => _DraggableWidgetState();
 }
 
 class _DraggableWidgetState extends State<DraggableWidget> {
+  Widget gestureWidget;
   Widget imageWidget;
+  GlobalKey widgetKey = GlobalKey();
+  Alignment imagePosition;
+  double width;
+  ImageData selectedImage;
 
   @override
   void initState() {
     super.initState();
-    imageWidget = Container(
-        width: widget.width,
-        child: FittedBox(
-            fit: BoxFit.cover,
-            child: Image.memory(
-              widget.selectedImage.imageData,
-            )));
+    if (imagePosition == null) {
+      imagePosition = Alignment(0, 0);
+    }
+    width = widget.width;
+    selectedImage = widget.selectedImage;
   }
 
   @override
   Widget build(BuildContext context) {
+    imageWidget = ClipRect(
+        child: Transform(
+      alignment: Alignment.center,
+      transform: Matrix4.diagonal3(Vector3(
+          selectedImage.scale, selectedImage.scale, selectedImage.scale)),
+      child: Image.memory(
+        selectedImage.imageData,
+      ),
+    ));
+    gestureWidget = GestureDetector(
+      key: widgetKey,
+      child: Container(
+          width: width,
+          height: widget.height,
+          child: ClipRect(child: imageWidget)),
+      onLongPress: () {
+        longPressFunctionality();
+      },
+    );
     return DragTarget<DragData>(
       onWillAccept: (data) => true,
       onAccept: (data) {
-        Widget temp = this.imageWidget;
+        ImageData temp = this.selectedImage;
         setState(() {
-          updateImage(data.draggedWidget);
+          updateImage(data.selectedImage);
         });
         data.updatePrevious(temp);
       },
       builder: (BuildContext context, List incoming, List rejected) {
         return Draggable<DragData>(
-          data: DragData(updateImage, imageWidget),
-          child: imageWidget,
-          feedback: imageWidget,
+          data: DragData(updateImage, selectedImage),
+          child: gestureWidget,
+          feedback: gestureWidget,
           childWhenDragging: Container(
               width: widget.width,
+              height: widget.height,
               child: Center(
                 child: Text("HEEEEEEEEEEEEEE"),
               )),
@@ -133,9 +171,41 @@ class _DraggableWidgetState extends State<DraggableWidget> {
     );
   }
 
-  void updateImage(Widget data) {
+  void updateImage(ImageData selectedImage) {
     setState(() {
-      this.imageWidget = data;
+      this.selectedImage = selectedImage;
+    });
+  }
+
+  void longPressFunctionality() {
+    RenderBox renderBox = widgetKey.currentContext.findRenderObject();
+    Size size = renderBox.size;
+    Offset offset = renderBox.localToGlobal(Offset.zero);
+    Navigator.push(
+        context,
+        PageRouteBuilder(
+            transitionDuration: Duration(milliseconds: 100),
+            pageBuilder: (context, animation, secondaryAnimation) {
+              animation = Tween(begin: 0.0, end: 1.0).animate(animation);
+              return FadeTransition(
+                  opacity: animation,
+                  child: FocusedEdit(
+                    childOffset: offset,
+                    childSize: size,
+                    child: Image.memory(
+                      selectedImage.imageData,
+                    ),
+                    updateImageZoom: updateImageZoom,
+                    initScale: this.selectedImage.scale,
+                  ));
+            },
+            fullscreenDialog: true,
+            opaque: false));
+  }
+
+  void updateImageZoom(double scale) {
+    setState(() {
+      this.selectedImage.scale = scale;
     });
   }
 }

@@ -63,11 +63,12 @@ class _AddScreen extends State<AddScreen> {
         IconButton(
           icon: Icon(FeatherIcons.arrowRight, color: Colors.black),
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        EditPage(selectedImages: selectedImages)));
+            // TODO:
+            // Navigator.push(
+            //     context,
+            //     MaterialPageRoute(
+            //         builder: (context) =>
+            //             EditPage(selectedImages: selectedImages)));
           },
         )
       ],
@@ -136,10 +137,10 @@ class _AddScreen extends State<AddScreen> {
 
     setState(() {
       selectedImages.add(ImageData(imageLoc: pickedFile.path));
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => EditPage(selectedImages: selectedImages)));
+      // Navigator.push(
+      //     context,
+      //     MaterialPageRoute(
+      //         builder: (context) => EditPage(selectedImages: selectedImages)));
     });
   }
 }
