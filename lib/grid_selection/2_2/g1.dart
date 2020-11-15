@@ -114,6 +114,8 @@ class _DraggableWidgetState extends State<DraggableWidget> {
   Alignment imagePosition;
   double width;
   ImageData selectedImage;
+  double xPosition = 0;
+  double yPosition = 0;
 
   @override
   void initState() {
@@ -128,14 +130,16 @@ class _DraggableWidgetState extends State<DraggableWidget> {
   @override
   Widget build(BuildContext context) {
     imageWidget = ClipRect(
-        child: Transform(
-      alignment: Alignment.center,
-      transform: Matrix4.diagonal3(Vector3(
-          selectedImage.scale, selectedImage.scale, selectedImage.scale)),
-      child: Image.memory(
-        selectedImage.imageData,
-      ),
-    ));
+        child: Transform.translate(
+            offset: Offset(xPosition, yPosition),
+            child: Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.diagonal3(Vector3(selectedImage.scale,
+                  selectedImage.scale, selectedImage.scale)),
+              child: Image.memory(
+                selectedImage.imageData,
+              ),
+            )));
     gestureWidget = GestureDetector(
       key: widgetKey,
       child: Container(
@@ -190,14 +194,16 @@ class _DraggableWidgetState extends State<DraggableWidget> {
               return FadeTransition(
                   opacity: animation,
                   child: FocusedEdit(
-                    childOffset: offset,
-                    childSize: size,
-                    child: Image.memory(
-                      selectedImage.imageData,
-                    ),
-                    updateImageZoom: updateImageZoom,
-                    initScale: this.selectedImage.scale,
-                  ));
+                      childOffset: offset,
+                      childSize: size,
+                      child: Image.memory(
+                        selectedImage.imageData,
+                      ),
+                      updateImageZoom: updateImageZoom,
+                      initScale: this.selectedImage.scale,
+                      xPosition: xPosition,
+                      yPosition: yPosition,
+                      updatePosition: updatePosition));
             },
             fullscreenDialog: true,
             opaque: false));
@@ -206,6 +212,13 @@ class _DraggableWidgetState extends State<DraggableWidget> {
   void updateImageZoom(double scale) {
     setState(() {
       this.selectedImage.scale = scale;
+    });
+  }
+
+  void updatePosition(double xPosition, double yPosition) {
+    setState(() {
+      this.xPosition = xPosition;
+      this.yPosition = yPosition;
     });
   }
 }

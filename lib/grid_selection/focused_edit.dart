@@ -8,13 +8,19 @@ class FocusedEdit extends StatefulWidget {
   final Widget child;
   final Function updateImageZoom;
   final double initScale;
+  final double xPosition;
+  final double yPosition;
+  final Function updatePosition;
   FocusedEdit(
       {Key key,
       @required this.childOffset,
       @required this.childSize,
       @required this.child,
       @required this.updateImageZoom,
-      @required this.initScale})
+      @required this.initScale,
+      @required this.xPosition,
+      @required this.yPosition,
+      @required this.updatePosition})
       : super(key: key);
 
   @override
@@ -22,41 +28,81 @@ class FocusedEdit extends StatefulWidget {
 }
 
 class _FocusedEditState extends State<FocusedEdit> {
-  Widget imageWidget;
   double scale = 1.0;
   double _previousScale = 1.0;
+  double xPosition = 0;
+  double yPosition = 0;
+  bool isZooming = false;
 
   @override
   void initState() {
     super.initState();
     scale = widget.initScale;
     _previousScale = scale;
+    xPosition = widget.xPosition;
+    yPosition = widget.yPosition;
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget zoomableWidget = GestureDetector(
-      onScaleUpdate: (ScaleUpdateDetails details) {
-        double presentScale = details.scale - 1;
-        if (presentScale < 0) {
-          presentScale = presentScale * 2;
-        } else {
-          presentScale = presentScale * 1.3;
-        }
-        scale = _previousScale + presentScale;
-        widget.updateImageZoom(scale);
-        setState(() {});
-      },
-      onScaleEnd: (ScaleEndDetails details) {
-        _previousScale = scale;
-        setState(() {});
-      },
+    Widget imageWidget = Transform.translate(
+      offset: Offset(xPosition, yPosition),
       child: Transform(
         alignment: Alignment.center,
         transform: Matrix4.diagonal3(Vector3(scale, scale, scale)),
         child: widget.child,
       ),
     );
+    Widget gesturesWidget = GestureDetector(
+        // zoom functions
+        onScaleStart: (ScaleStartDetails details) {
+          isZooming = true;
+          setState(() {});
+        },
+        onScaleUpdate: (ScaleUpdateDetails details) {
+          double presentScale = details.scale - 1;
+          // if (isZooming) {
+
+          //   // print(scale);
+          // }
+          if (presentScale < 0) {
+            presentScale = presentScale * 2;
+          } else {
+            presentScale = presentScale * 1.3;
+          }
+          scale = _previousScale + presentScale;
+          widget.updateImageZoom(scale);
+          setState(() {});
+        },
+        onScaleEnd: (ScaleEndDetails details) {
+          if (isZooming) {
+            isZooming = false;
+            _previousScale = scale;
+            setState(() {});
+          }
+        },
+        child: GestureDetector(
+          onHorizontalDragUpdate: (DragUpdateDetails details) {
+            if (!isZooming) {
+              setState(() {
+                xPosition += (details.delta.dx * 2);
+              });
+              widget.updatePosition(xPosition, yPosition);
+            }
+          },
+          onVerticalDragUpdate: (DragUpdateDetails details) {
+            if (!isZooming) {
+              setState(() {
+                yPosition += (details.delta.dy * 2);
+              });
+              widget.updatePosition(xPosition, yPosition);
+            }
+          },
+          child: Container(
+              width: widget.childSize.width,
+              height: widget.childSize.height,
+              child: ClipRect(child: imageWidget)),
+        ));
     return Scaffold(
         // appBar: AppBar(),
         backgroundColor: Colors.transparent,
@@ -78,7 +124,7 @@ class _FocusedEditState extends State<FocusedEdit> {
                 child: Container(
                     width: widget.childSize.width,
                     height: widget.childSize.height,
-                    child: ClipRect(child: zoomableWidget)),
+                    child: ClipRect(child: gesturesWidget)),
               ),
             ],
           ),
