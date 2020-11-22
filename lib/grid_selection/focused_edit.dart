@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../classes/image_data.dart';
@@ -35,7 +36,7 @@ class _FocusedEditState extends State<FocusedEdit> {
   double xPosition = 0;
   double yPosition = 0;
   double minScale = 0.3;
-  double maxScale = 4;
+  double maxScale = 6;
 
   @override
   void initState() {
@@ -56,7 +57,7 @@ class _FocusedEditState extends State<FocusedEdit> {
         child: Image.memory(widget.imageData.imageData),
       ),
     );
-    Widget gesturesWidget = getGesturesWidget(imageWidget);
+    Widget gesturesWidget = getGesturesWidget(imageWidget, context);
     return Scaffold(
         // appBar: AppBar(),
         backgroundColor: Colors.transparent,
@@ -85,7 +86,7 @@ class _FocusedEditState extends State<FocusedEdit> {
         ));
   }
 
-  Widget getGesturesWidget(Widget imageWidget) {
+  Widget getGesturesWidget(Widget imageWidget, BuildContext context) {
     Widget gesturesWidget = XGestureDetector(
       child: imageWidget,
       onScaleUpdate: (changedFocusPoint, _scale, rotationAngle) {
@@ -105,15 +106,28 @@ class _FocusedEditState extends State<FocusedEdit> {
           scale = maxScale;
           widget.updateImageZoom(scale);
         }
+        if (scale < minScale) {
+          scale = minScale;
+          widget.updateImageZoom(scale);
+        }
         _previousScale = scale;
         setState(() {});
       },
       onMoveUpdate: (localPos, position, localDelta, delta) {
-        setState(() {
-          xPosition += delta.dx;
-          yPosition += delta.dy;
-        });
+        double _xPosition = xPosition + delta.dx;
+        double _yPosition = yPosition + delta.dy;
+        // TODO: Improve this drag limiting
+        double xPostionLimit = widget.childSize.width * 0.7 * (scale / 2);
+        double yPostionLimit = widget.childSize.height * 0.7 * (scale / 2);
+        if (_xPosition.abs() < xPostionLimit) {
+          xPosition = _xPosition;
+        }
+        if (_yPosition.abs() < yPostionLimit) {
+          yPosition = _yPosition;
+        }
+        setState(() {});
         widget.updatePosition(xPosition, yPosition);
+        print(_yPosition);
       },
     );
     return gesturesWidget;
