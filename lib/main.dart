@@ -127,7 +127,10 @@ class _MainScreen extends State<MainScreen> {
       for (Asset e in resultList) {
         final byteData = await e.getByteData();
         Uint8List pngBytes = byteData.buffer.asUint8List();
-        selectedImages.add(ImageData(imageData: pngBytes));
+        selectedImages.add(ImageData(
+            imageData: pngBytes,
+            height: e.originalHeight,
+            width: e.originalWidth));
       }
       if (selectedImages.length == 1) {
         Navigator.push(

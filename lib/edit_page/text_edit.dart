@@ -78,14 +78,14 @@ class _MoveableTextField extends State<MoveableTextField> {
   Widget _getBodyWidget() {
     return Stack(
       children: <Widget>[
-        Opacity(
-          opacity: 0.4,
-          child: Container(
-            color: Colors.black38,
-          ),
-        ),
+        // Opacity(
+        //   opacity: 0.4,
+        //   child: Container(
+        //     color: Colors.black38,
+        //   ),
+        // ),
         AppBar(
-          backgroundColor: Colors.transparent,
+          // backgroundColor: Colors.transparent,
           leading: IconButton(
             icon: Icon(FeatherIcons.arrowLeft, color: Colors.transparent),
             onPressed: () {},

@@ -38,13 +38,28 @@ class _EditOptions extends State<EditOptions> {
         ),
       ),
       onTap: () {
+        // Navigator.push(
+        //     context,
+        //     MaterialPageRoute(
+        //         builder: (context) => MoveableTextField(
+        //               intialText: "",
+        //               addFloatingWidget: widget.addFloatingWidget,
+        //             )));
         Navigator.push(
             context,
-            MaterialPageRoute(
-                builder: (context) => MoveableTextField(
-                      intialText: "",
-                      addFloatingWidget: widget.addFloatingWidget,
-                    )));
+            PageRouteBuilder(
+                transitionDuration: Duration(milliseconds: 100),
+                pageBuilder: (context, animation, secondaryAnimation) {
+                  animation = Tween(begin: 0.0, end: 1.0).animate(animation);
+                  return FadeTransition(
+                      opacity: animation,
+                      child: MoveableTextField(
+                        intialText: "",
+                        addFloatingWidget: widget.addFloatingWidget,
+                      ));
+                },
+                fullscreenDialog: true,
+                opaque: false));
       },
     );
   }

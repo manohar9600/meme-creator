@@ -1,11 +1,12 @@
 import 'dart:ui';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart' show Vector3;
+import '../classes/image_data.dart';
 
 class FocusedEdit extends StatefulWidget {
   final Offset childOffset;
   final Size childSize;
-  final Widget child;
+  final ImageData imageData;
   final Function updateImageZoom;
   final double initScale;
   final double xPosition;
@@ -15,7 +16,7 @@ class FocusedEdit extends StatefulWidget {
       {Key key,
       @required this.childOffset,
       @required this.childSize,
-      @required this.child,
+      @required this.imageData,
       @required this.updateImageZoom,
       @required this.initScale,
       @required this.xPosition,
@@ -33,6 +34,8 @@ class _FocusedEditState extends State<FocusedEdit> {
   double xPosition = 0;
   double yPosition = 0;
   bool isZooming = false;
+  double minScale = 0.3;
+  double maxScale = 4;
 
   @override
   void initState() {
@@ -47,62 +50,13 @@ class _FocusedEditState extends State<FocusedEdit> {
   Widget build(BuildContext context) {
     Widget imageWidget = Transform.translate(
       offset: Offset(xPosition, yPosition),
-      child: Transform(
+      child: Transform.scale(
         alignment: Alignment.center,
-        transform: Matrix4.diagonal3(Vector3(scale, scale, scale)),
-        child: widget.child,
+        scale: scale,
+        child: Image.memory(widget.imageData.imageData),
       ),
     );
-    Widget gesturesWidget = GestureDetector(
-        // zoom functions
-        onScaleStart: (ScaleStartDetails details) {
-          isZooming = true;
-          setState(() {});
-        },
-        onScaleUpdate: (ScaleUpdateDetails details) {
-          double presentScale = details.scale - 1;
-          // if (isZooming) {
-
-          //   // print(scale);
-          // }
-          if (presentScale < 0) {
-            presentScale = presentScale * 2;
-          } else {
-            presentScale = presentScale * 1.3;
-          }
-          scale = _previousScale + presentScale;
-          widget.updateImageZoom(scale);
-          setState(() {});
-        },
-        onScaleEnd: (ScaleEndDetails details) {
-          if (isZooming) {
-            isZooming = false;
-            _previousScale = scale;
-            setState(() {});
-          }
-        },
-        child: GestureDetector(
-          onHorizontalDragUpdate: (DragUpdateDetails details) {
-            if (!isZooming) {
-              setState(() {
-                xPosition += (details.delta.dx * 2);
-              });
-              widget.updatePosition(xPosition, yPosition);
-            }
-          },
-          onVerticalDragUpdate: (DragUpdateDetails details) {
-            if (!isZooming) {
-              setState(() {
-                yPosition += (details.delta.dy * 2);
-              });
-              widget.updatePosition(xPosition, yPosition);
-            }
-          },
-          child: Container(
-              width: widget.childSize.width,
-              height: widget.childSize.height,
-              child: ClipRect(child: imageWidget)),
-        ));
+    Widget gesturesWidget = getGesturesWidget(imageWidget);
     return Scaffold(
         // appBar: AppBar(),
         backgroundColor: Colors.transparent,
@@ -129,5 +83,83 @@ class _FocusedEditState extends State<FocusedEdit> {
             ],
           ),
         ));
+  }
+
+  Widget getGesturesWidget(Widget imageWidget) {
+    Widget gesturesWidget = RawGestureDetector(
+      gestures: <Type, GestureRecognizerFactory>{
+        CustomScaleGestureRecognizer:
+            GestureRecognizerFactoryWithHandlers<CustomScaleGestureRecognizer>(
+                () => CustomScaleGestureRecognizer(),
+                (CustomScaleGestureRecognizer instance) {
+          instance.onUpdate = (ScaleUpdateDetails details) {
+            double presentScale = details.scale - 1;
+            if (presentScale < 0) {
+              presentScale = presentScale * 2;
+            } else {
+              presentScale = presentScale * 1.3;
+            }
+            double newScale = _previousScale + presentScale;
+            if (newScale >= minScale && newScale <= maxScale) {
+              scale = newScale;
+              widget.updateImageZoom(scale);
+              setState(() {});
+            }
+          };
+          instance.onEnd = (ScaleEndDetails details) {
+            _previousScale = scale;
+          };
+        })
+      },
+      child: RawGestureDetector(
+        gestures: <Type, GestureRecognizerFactory>{
+          CustomHorizontalDragRecognizer: GestureRecognizerFactoryWithHandlers<
+                  CustomHorizontalDragRecognizer>(
+              () => CustomHorizontalDragRecognizer(),
+              (CustomHorizontalDragRecognizer instance) {
+            instance.onUpdate = (DragUpdateDetails details) {
+              setState(() {
+                xPosition += (details.delta.dx);
+              });
+              widget.updatePosition(xPosition, yPosition);
+            };
+          }),
+          CustomVerticalDragRecognizer: GestureRecognizerFactoryWithHandlers<
+                  CustomVerticalDragRecognizer>(
+              () => CustomVerticalDragRecognizer(),
+              (CustomVerticalDragRecognizer instance) {
+            instance.onUpdate = (DragUpdateDetails details) {
+              setState(() {
+                yPosition += (details.delta.dy);
+              });
+              widget.updatePosition(xPosition, yPosition);
+            };
+          }),
+        },
+        child: imageWidget,
+      ),
+    );
+    return gesturesWidget;
+  }
+}
+
+class CustomScaleGestureRecognizer extends ScaleGestureRecognizer {
+  @override
+  void rejectGesture(int pointer) {
+    acceptGesture(pointer);
+  }
+}
+
+class CustomHorizontalDragRecognizer extends HorizontalDragGestureRecognizer {
+  @override
+  void rejectGesture(int pointer) {
+    acceptGesture(pointer);
+  }
+}
+
+class CustomVerticalDragRecognizer extends VerticalDragGestureRecognizer {
+  @override
+  void rejectGesture(int pointer) {
+    acceptGesture(pointer);
   }
 }

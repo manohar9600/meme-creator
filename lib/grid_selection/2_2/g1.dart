@@ -129,17 +129,16 @@ class _DraggableWidgetState extends State<DraggableWidget> {
 
   @override
   Widget build(BuildContext context) {
-    imageWidget = ClipRect(
-        child: Transform.translate(
-            offset: Offset(xPosition, yPosition),
-            child: Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.diagonal3(Vector3(selectedImage.scale,
-                  selectedImage.scale, selectedImage.scale)),
-              child: Image.memory(
-                selectedImage.imageData,
-              ),
-            )));
+    imageWidget = Transform.translate(
+      offset: Offset(xPosition, yPosition),
+      child: Transform.scale(
+        alignment: Alignment.center,
+        scale: selectedImage.scale,
+        child: Image.memory(
+          selectedImage.imageData,
+        ),
+      ),
+    );
     gestureWidget = GestureDetector(
       key: widgetKey,
       child: Container(
@@ -196,9 +195,7 @@ class _DraggableWidgetState extends State<DraggableWidget> {
                   child: FocusedEdit(
                       childOffset: offset,
                       childSize: size,
-                      child: Image.memory(
-                        selectedImage.imageData,
-                      ),
+                      imageData: selectedImage,
                       updateImageZoom: updateImageZoom,
                       initScale: this.selectedImage.scale,
                       xPosition: xPosition,
