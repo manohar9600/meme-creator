@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../classes/image_data.dart';
+import 'package:gesture_x_detector/gesture_x_detector.dart';
 
 class FocusedEdit extends StatefulWidget {
   final Offset childOffset;
@@ -33,7 +34,6 @@ class _FocusedEditState extends State<FocusedEdit> {
   double _previousScale = 1.0;
   double xPosition = 0;
   double yPosition = 0;
-  bool isZooming = false;
   double minScale = 0.3;
   double maxScale = 4;
 
@@ -86,80 +86,36 @@ class _FocusedEditState extends State<FocusedEdit> {
   }
 
   Widget getGesturesWidget(Widget imageWidget) {
-    Widget gesturesWidget = RawGestureDetector(
-      gestures: <Type, GestureRecognizerFactory>{
-        CustomScaleGestureRecognizer:
-            GestureRecognizerFactoryWithHandlers<CustomScaleGestureRecognizer>(
-                () => CustomScaleGestureRecognizer(),
-                (CustomScaleGestureRecognizer instance) {
-          instance.onUpdate = (ScaleUpdateDetails details) {
-            double presentScale = details.scale - 1;
-            if (presentScale < 0) {
-              presentScale = presentScale * 2;
-            } else {
-              presentScale = presentScale * 1.3;
-            }
-            double newScale = _previousScale + presentScale;
-            if (newScale >= minScale && newScale <= maxScale) {
-              scale = newScale;
-              widget.updateImageZoom(scale);
-              setState(() {});
-            }
-          };
-          instance.onEnd = (ScaleEndDetails details) {
-            _previousScale = scale;
-          };
-        })
+    Widget gesturesWidget = XGestureDetector(
+      child: imageWidget,
+      onScaleUpdate: (changedFocusPoint, _scale, rotationAngle) {
+        double presentScale = _scale - 1;
+        if (presentScale < 0) {
+          presentScale = presentScale * 2;
+        } else {
+          presentScale = presentScale * 1.3;
+        }
+        double newScale = _previousScale + presentScale;
+        scale = newScale;
+        widget.updateImageZoom(scale);
+        setState(() {});
       },
-      child: RawGestureDetector(
-        gestures: <Type, GestureRecognizerFactory>{
-          CustomHorizontalDragRecognizer: GestureRecognizerFactoryWithHandlers<
-                  CustomHorizontalDragRecognizer>(
-              () => CustomHorizontalDragRecognizer(),
-              (CustomHorizontalDragRecognizer instance) {
-            instance.onUpdate = (DragUpdateDetails details) {
-              setState(() {
-                xPosition += (details.delta.dx);
-              });
-              widget.updatePosition(xPosition, yPosition);
-            };
-          }),
-          CustomVerticalDragRecognizer: GestureRecognizerFactoryWithHandlers<
-                  CustomVerticalDragRecognizer>(
-              () => CustomVerticalDragRecognizer(),
-              (CustomVerticalDragRecognizer instance) {
-            instance.onUpdate = (DragUpdateDetails details) {
-              setState(() {
-                yPosition += (details.delta.dy);
-              });
-              widget.updatePosition(xPosition, yPosition);
-            };
-          }),
-        },
-        child: imageWidget,
-      ),
+      onScaleEnd: () {
+        if (scale > maxScale) {
+          scale = maxScale;
+          widget.updateImageZoom(scale);
+        }
+        _previousScale = scale;
+        setState(() {});
+      },
+      onMoveUpdate: (localPos, position, localDelta, delta) {
+        setState(() {
+          xPosition += delta.dx;
+          yPosition += delta.dy;
+        });
+        widget.updatePosition(xPosition, yPosition);
+      },
     );
     return gesturesWidget;
-  }
-}
-
-class CustomScaleGestureRecognizer extends ScaleGestureRecognizer {
-  @override
-  void rejectGesture(int pointer) {
-    acceptGesture(pointer);
-  }
-}
-
-class CustomHorizontalDragRecognizer extends HorizontalDragGestureRecognizer {
-  @override
-  void rejectGesture(int pointer) {
-    acceptGesture(pointer);
-  }
-}
-
-class CustomVerticalDragRecognizer extends VerticalDragGestureRecognizer {
-  @override
-  void rejectGesture(int pointer) {
-    acceptGesture(pointer);
   }
 }
