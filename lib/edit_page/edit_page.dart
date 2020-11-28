@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'edit_options.dart';
 import '../render/render.dart';
-import '../classes/image_data.dart';
+import '../classes/image.dart';
 
 class EditPage extends StatefulWidget {
   final GlobalKey imageKey;
-  final ImageData singleImage;
+  final ImageMetaData singleImage;
   EditPage({this.imageKey, this.singleImage});
   @override
   _EditPage createState() => _EditPage();

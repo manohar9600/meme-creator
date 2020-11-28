@@ -1,11 +1,11 @@
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
-import '../classes/image_data.dart';
+import '../classes/image.dart';
 import '2_2/g1.dart';
 
 class GridSelector extends StatelessWidget {
-  final List<ImageData> selectedImages;
+  final List<ImageMetaData> selectedImages;
   GridSelector({this.selectedImages});
   @override
   Widget build(BuildContext context) {
@@ -40,7 +40,7 @@ class GridSelector extends StatelessWidget {
 }
 
 class GridWidget extends StatefulWidget {
-  final List<ImageData> selectedImages;
+  final List<ImageMetaData> selectedImages;
   GridWidget({this.selectedImages});
   @override
   _GridWidget createState() => _GridWidget();

@@ -1,29 +1,18 @@
 import 'dart:ui';
-import 'dart:math';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import '../classes/image_data.dart';
+import '../classes/image.dart';
 import 'package:gesture_x_detector/gesture_x_detector.dart';
 
 class FocusedEdit extends StatefulWidget {
-  final Offset childOffset;
-  final Size childSize;
-  final ImageData imageData;
-  final Function updateImageZoom;
-  final double initScale;
-  final double xPosition;
-  final double yPosition;
-  final Function updatePosition;
+  final ImageView imageView;
+  final Function updateImageView;
+  final Offset globalOffset;
   FocusedEdit(
       {Key key,
-      @required this.childOffset,
-      @required this.childSize,
-      @required this.imageData,
-      @required this.updateImageZoom,
-      @required this.initScale,
-      @required this.xPosition,
-      @required this.yPosition,
-      @required this.updatePosition})
+      @required this.imageView,
+      @required this.updateImageView,
+      this.globalOffset})
       : super(key: key);
 
   @override
@@ -31,32 +20,21 @@ class FocusedEdit extends StatefulWidget {
 }
 
 class _FocusedEditState extends State<FocusedEdit> {
-  double scale = 1.0;
+  ImageView imageView;
   double _previousScale = 1.0;
-  double xPosition = 0;
-  double yPosition = 0;
   double minScale = 0.3;
   double maxScale = 6;
 
   @override
   void initState() {
     super.initState();
-    scale = widget.initScale;
-    _previousScale = scale;
-    xPosition = widget.xPosition;
-    yPosition = widget.yPosition;
+    this.imageView = widget.imageView;
+    _previousScale = imageView.imageScale;
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget imageWidget = Transform.translate(
-      offset: Offset(xPosition, yPosition),
-      child: Transform.scale(
-        alignment: Alignment.center,
-        scale: scale,
-        child: Image.memory(widget.imageData.imageData),
-      ),
-    );
+    Widget imageWidget = ImageViewWidget(imageView: imageView);
     Widget gesturesWidget = getGesturesWidget(imageWidget, context);
     return Scaffold(
         // appBar: AppBar(),
@@ -74,12 +52,9 @@ class _FocusedEditState extends State<FocusedEdit> {
                 ),
               ),
               Positioned(
-                top: widget.childOffset.dy,
-                left: widget.childOffset.dx,
-                child: Container(
-                    width: widget.childSize.width,
-                    height: widget.childSize.height,
-                    child: ClipRect(child: gesturesWidget)),
+                top: widget.globalOffset.dy,
+                left: widget.globalOffset.dx,
+                child: gesturesWidget,
               ),
             ],
           ),
@@ -97,37 +72,39 @@ class _FocusedEditState extends State<FocusedEdit> {
           presentScale = presentScale * 1.3;
         }
         double newScale = _previousScale + presentScale;
-        scale = newScale;
-        widget.updateImageZoom(scale);
+        imageView.imageScale = newScale;
+        widget.updateImageView(imageView);
         setState(() {});
       },
       onScaleEnd: () {
-        if (scale > maxScale) {
-          scale = maxScale;
-          widget.updateImageZoom(scale);
+        if (imageView.imageScale > maxScale) {
+          imageView.imageScale = maxScale;
         }
-        if (scale < minScale) {
-          scale = minScale;
-          widget.updateImageZoom(scale);
+        if (imageView.imageScale < minScale) {
+          imageView.imageScale = minScale;
         }
-        _previousScale = scale;
+        widget.updateImageView(imageView);
+        _previousScale = imageView.imageScale;
         setState(() {});
       },
       onMoveUpdate: (localPos, position, localDelta, delta) {
-        double _xPosition = xPosition + delta.dx;
-        double _yPosition = yPosition + delta.dy;
+        Offset _prevPosition = imageView.imagePosition;
+        double _xPosition = _prevPosition.dx + delta.dx;
+        double _yPosition = _prevPosition.dy + delta.dy;
         // TODO: Improve this drag limiting
-        double xPostionLimit = widget.childSize.width * 0.7 * (scale / 2);
-        double yPostionLimit = widget.childSize.height * 0.7 * (scale / 2);
+        double xPostionLimit =
+            imageView.width * 0.7 * (imageView.imageScale / 2);
+        double yPostionLimit =
+            imageView.height * 0.7 * (imageView.imageScale / 2);
         if (_xPosition.abs() < xPostionLimit) {
-          xPosition = _xPosition;
+          _prevPosition = Offset(_xPosition, _prevPosition.dy);
         }
         if (_yPosition.abs() < yPostionLimit) {
-          yPosition = _yPosition;
+          _prevPosition = Offset(_prevPosition.dx, _yPosition);
         }
         setState(() {});
-        widget.updatePosition(xPosition, yPosition);
-        print(_yPosition);
+        imageView.imagePosition = _prevPosition;
+        widget.updateImageView(imageView);
       },
     );
     return gesturesWidget;

@@ -1,12 +1,11 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:multi_image_picker/multi_image_picker.dart';
 import 'widgets/navigation_bar.dart';
 import 'pages/home.dart';
-import 'package:image_picker/image_picker.dart';
-import 'classes/image_data.dart';
+import 'classes/image.dart';
 import 'grid_selection/grid_selector.dart';
 import 'edit_page/edit_page.dart';
-import 'package:multi_image_picker/multi_image_picker.dart';
 
 void main() => runApp(MyApp());
 
@@ -115,7 +114,7 @@ class _MainScreen extends State<MainScreen> {
   }
 
   Future getImages() async {
-    List<ImageData> selectedImages = [];
+    List<ImageMetaData> selectedImages = [];
     List<Asset> resultList;
     try {
       resultList = await MultiImagePicker.pickImages(maxImages: 4);
@@ -127,7 +126,7 @@ class _MainScreen extends State<MainScreen> {
       for (Asset e in resultList) {
         final byteData = await e.getByteData();
         Uint8List pngBytes = byteData.buffer.asUint8List();
-        selectedImages.add(ImageData(
+        selectedImages.add(ImageMetaData(
             imageData: pngBytes,
             height: e.originalHeight,
             width: e.originalWidth));
