@@ -8,9 +8,8 @@ import '../render/render.dart';
 import '../classes/image.dart';
 
 class EditPage extends StatefulWidget {
-  final GlobalKey imageKey;
-  final ImageMetaData singleImage;
-  EditPage({this.imageKey, this.singleImage});
+  final List<ImageView> selectedImages;
+  EditPage({this.selectedImages});
   @override
   _EditPage createState() => _EditPage();
 }
@@ -23,16 +22,8 @@ class _EditPage extends State<EditPage> {
   @override
   void initState() {
     super.initState();
-    if (widget.singleImage == null) {
-      takeScreenshot();
-    } else {
-      Widget imageWidget = Center(
-          child: Container(
-        child: Image.memory(widget.singleImage.imageData),
-      ));
-      stackWidgets.add(imageWidget);
-      _count += 1;
-    }
+    stackWidgets.add(getImageGridWidget(widget.selectedImages));
+    _count += 1;
   }
 
   @override
@@ -41,6 +32,38 @@ class _EditPage extends State<EditPage> {
       resizeToAvoidBottomPadding: false,
       appBar: _getAppBar(),
       body: _getBodyWidget(),
+    );
+  }
+
+  Widget getImageGridWidget(List<ImageView> selectedImages) {
+    List<List<ImageView>> arrangedImages = [];
+    widget.selectedImages
+        .sort((a, b) => a.widgetPosTag.compareTo(b.widgetPosTag));
+    for (ImageView selectedImage in widget.selectedImages) {
+      int rowPos = selectedImage.widgetPosTag.toInt();
+      if (rowPos + 1 > arrangedImages.length) {
+        List<ImageView> emptyRow = [];
+        arrangedImages.add(emptyRow);
+      }
+      arrangedImages[rowPos].add(selectedImage);
+    }
+
+    double _width = 450;
+    double _height = 450;
+    Widget _gridWidget = Column(
+      children: List.generate(arrangedImages.length, (index) {
+        List<ImageView> rowImages = arrangedImages[index];
+        return Expanded(
+            child: Row(
+                children: List.generate(rowImages.length, (index) {
+          return Expanded(child: ImageViewWidget(imageView: rowImages[index]));
+        })));
+      }),
+    );
+    return Container(
+      width: _width,
+      height: _height,
+      child: _gridWidget,
     );
   }
 
@@ -127,24 +150,6 @@ class _EditPage extends State<EditPage> {
         stackWidgets.add(floatingWidget);
         _count += 1;
       }
-    });
-  }
-
-  void takeScreenshot() async {
-    // unfocuses all widgets.
-    WidgetsBinding.instance.focusManager.primaryFocus?.unfocus();
-    RenderRepaintBoundary boundary =
-        widget.imageKey.currentContext.findRenderObject();
-    ui.Image image = await boundary.toImage();
-    ByteData byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-    Uint8List pngBytes = byteData.buffer.asUint8List();
-    Widget imageWidget = Center(
-        child: Container(
-      child: Image.memory(pngBytes),
-    ));
-    setState(() {
-      stackWidgets.add(imageWidget);
-      _count += 1;
     });
   }
 }

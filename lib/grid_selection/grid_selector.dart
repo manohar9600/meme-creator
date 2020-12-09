@@ -68,9 +68,7 @@ class _GridWidget extends State<GridWidget> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => G1(
-                      selectedImages: widget.selectedImages,
-                      crossAxisCount: 1)));
+                  builder: (context) => G1(widget.selectedImages, 1)));
         },
       ),
       GestureDetector(
@@ -84,9 +82,7 @@ class _GridWidget extends State<GridWidget> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => G1(
-                      selectedImages: widget.selectedImages,
-                      crossAxisCount: 2)));
+                  builder: (context) => G1(widget.selectedImages, 2)));
         },
       ),
       // Container(

@@ -5,16 +5,34 @@ import '../../edit_page/edit_page.dart';
 import '../focused_edit.dart';
 
 class G1 extends StatelessWidget {
-  final List<ImageMetaData> selectedImages;
+  final List<ImageMetaData> selectedImagesMetaData;
   final int crossAxisCount;
-  G1({this.selectedImages, this.crossAxisCount});
+  final List<ImageView> selectedImages = [];
+  G1(this.selectedImagesMetaData, this.crossAxisCount) {
+    int row = -1;
+    for (int i = 0; i < this.selectedImagesMetaData.length; i++) {
+      int _pos = i % this.crossAxisCount;
+      double colPosTag = double.parse("." + _pos.toString());
+      if (colPosTag == 0) {
+        row++;
+      }
+      double widgetPosTag = row + colPosTag;
+      ImageView imageView = ImageView(
+          imageData: this.selectedImagesMetaData[i],
+          width: null,
+          height: null,
+          imagePosition: Offset(0, 0),
+          imageScale: 1.0,
+          widgetPosTag: widgetPosTag);
+      selectedImages.add(imageView);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _getAppBar(context),
-      body: FrameWidget(
-          selectedImages: selectedImages, crossAxisCount: this.crossAxisCount),
-    );
+    Widget frameWidget = FrameWidget(
+        selectedImages: selectedImages, crossAxisCount: this.crossAxisCount);
+    return Scaffold(appBar: _getAppBar(context), body: frameWidget);
   }
 
   Widget _getAppBar(BuildContext context) {
@@ -31,13 +49,12 @@ class G1 extends StatelessWidget {
         IconButton(
           icon: Icon(FeatherIcons.arrowRight, color: Colors.black),
           onPressed: () {
-            // TODO: Modify this
-            // Navigator.push(
-            //     context,
-            //     MaterialPageRoute(
-            //         builder: (context) => EditPage(
-            //               imageKey: imageKey,
-            //             )));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => EditPage(
+                          selectedImages: selectedImages,
+                        )));
           },
         )
       ],
@@ -46,7 +63,7 @@ class G1 extends StatelessWidget {
 }
 
 class FrameWidget extends StatefulWidget {
-  final List<ImageMetaData> selectedImages;
+  final List<ImageView> selectedImages;
   final int crossAxisCount;
   FrameWidget({@required this.selectedImages, @required this.crossAxisCount});
   @override
@@ -55,34 +72,46 @@ class FrameWidget extends StatefulWidget {
 
 class _FrameWidget extends State<FrameWidget> {
   final widgetHeight = 400.0;
+  List<List<ImageView>> arrangedImages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    widget.selectedImages
+        .sort((a, b) => a.widgetPosTag.compareTo(b.widgetPosTag));
+    for (ImageView selectedImage in widget.selectedImages) {
+      int rowPos = selectedImage.widgetPosTag.toInt();
+      if (rowPos + 1 > arrangedImages.length) {
+        List<ImageView> emptyRow = [];
+        arrangedImages.add(emptyRow);
+      }
+      arrangedImages[rowPos].add(selectedImage);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
-    final int rowCount = widget.selectedImages.length ~/ widget.crossAxisCount;
-    /*24 is for notification bar on Android*/
-    final double itemHeight = widgetHeight / rowCount;
-    final double itemWidth = size.width / widget.crossAxisCount;
-
-    Widget gridWidget = GridView.count(
-      crossAxisCount: widget.crossAxisCount,
-      shrinkWrap: true,
-      childAspectRatio: (itemWidth / itemHeight),
-      children: List.generate(widget.selectedImages.length, (index) {
-        return DraggableWidget(
-            selectedImage: widget.selectedImages[index],
-            width: itemWidth,
-            height: itemHeight);
+    double _width = 450;
+    double _height = 450;
+    Widget _gridWidget = Column(
+      children: List.generate(arrangedImages.length, (index) {
+        List<ImageView> rowImages = arrangedImages[index];
+        return Expanded(
+            child: Row(
+                children: List.generate(rowImages.length, (index) {
+          return Expanded(
+              child: DraggableWidget(
+                  selectedImage: rowImages[index],
+                  height: _height / arrangedImages.length,
+                  width: _width / rowImages.length));
+        })));
       }),
     );
-
-    Widget finalWidget = Container(
-      height: widgetHeight,
-      margin: EdgeInsets.only(top: 50, bottom: 80),
-      child: gridWidget,
+    return Container(
+      width: _width,
+      height: _height,
+      child: _gridWidget,
     );
-
-    return finalWidget;
   }
 }
 
@@ -93,10 +122,10 @@ class DragData {
 }
 
 class DraggableWidget extends StatefulWidget {
-  final ImageMetaData selectedImage;
-  final width;
-  final height;
-  DraggableWidget({this.selectedImage, this.width, this.height});
+  final ImageView selectedImage;
+  final double height;
+  final double width;
+  DraggableWidget({this.selectedImage, this.height, this.width});
 
   @override
   _DraggableWidgetState createState() => _DraggableWidgetState();
@@ -112,20 +141,18 @@ class _DraggableWidgetState extends State<DraggableWidget> {
   @override
   void initState() {
     super.initState();
-    imageView = ImageView(
-        imageData: widget.selectedImage,
-        width: widget.width,
-        height: widget.height,
-        imagePosition: Offset(0, 0),
-        imageScale: 1.0);
+    imageView = widget.selectedImage;
   }
 
   @override
   Widget build(BuildContext context) {
-    imageWidget = ImageViewWidget(
-      key: _key,
-      imageView: imageView,
-    );
+    imageWidget = Container(
+        height: widget.height,
+        width: widget.width,
+        child: ImageViewWidget(
+          key: _key,
+          imageView: imageView,
+        ));
     gestureWidget = GestureDetector(
       child: imageWidget,
       onLongPress: () {
@@ -136,9 +163,12 @@ class _DraggableWidgetState extends State<DraggableWidget> {
       onWillAccept: (data) => true,
       onAccept: (data) {
         ImageView _prev = this.imageView;
+        double _prevTag = data.imageView.widgetPosTag;
         setState(() {
+          data.imageView.widgetPosTag = _prev.widgetPosTag;
           updateImageView(data.imageView);
         });
+        _prev.widgetPosTag = _prevTag;
         data.updatePrevious(_prev);
       },
       builder: (BuildContext context, List incoming, List rejected) {
@@ -147,8 +177,8 @@ class _DraggableWidgetState extends State<DraggableWidget> {
           child: gestureWidget,
           feedback: imageWidget,
           childWhenDragging: Container(
-              width: imageView.width,
-              height: imageView.height,
+              width: widget.width,
+              height: widget.height,
               child: Center(
                 child: Text("HEEEEEEEEEEEEEE"),
               )),

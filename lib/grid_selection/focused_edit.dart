@@ -96,10 +96,10 @@ class _FocusedEditState extends State<FocusedEdit> {
             imageView.width * 0.7 * (imageView.imageScale / 2);
         double yPostionLimit =
             imageView.height * 0.7 * (imageView.imageScale / 2);
-        if (_xPosition.abs() < xPostionLimit) {
+        if (_xPosition.abs() < xPostionLimit || true) {
           _prevPosition = Offset(_xPosition, _prevPosition.dy);
         }
-        if (_yPosition.abs() < yPostionLimit) {
+        if (_yPosition.abs() < yPostionLimit || true) {
           _prevPosition = Offset(_prevPosition.dx, _yPosition);
         }
         setState(() {});

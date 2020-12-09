@@ -19,12 +19,14 @@ class ImageView {
   double height;
   Offset imagePosition;
   double imageScale;
+  double widgetPosTag;
   ImageView(
       {@required this.imageData,
       @required this.width,
       @required this.height,
       @required this.imagePosition,
-      @required this.imageScale});
+      @required this.imageScale,
+      @required this.widgetPosTag});
 }
 
 class ImageViewWidget extends StatefulWidget {

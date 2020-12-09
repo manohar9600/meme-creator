@@ -6,6 +6,7 @@ import 'pages/home.dart';
 import 'classes/image.dart';
 import 'grid_selection/grid_selector.dart';
 import 'edit_page/edit_page.dart';
+import 'classes/image.dart';
 
 void main() => runApp(MyApp());
 
@@ -114,7 +115,7 @@ class _MainScreen extends State<MainScreen> {
   }
 
   Future getImages() async {
-    List<ImageMetaData> selectedImages = [];
+    List<ImageMetaData> selectedImagesMetaData = [];
     List<Asset> resultList;
     try {
       resultList = await MultiImagePicker.pickImages(maxImages: 4);
@@ -126,24 +127,33 @@ class _MainScreen extends State<MainScreen> {
       for (Asset e in resultList) {
         final byteData = await e.getByteData();
         Uint8List pngBytes = byteData.buffer.asUint8List();
-        selectedImages.add(ImageMetaData(
+        selectedImagesMetaData.add(ImageMetaData(
             imageData: pngBytes,
             height: e.originalHeight,
             width: e.originalWidth));
       }
-      if (selectedImages.length == 1) {
+      if (selectedImagesMetaData.length == 1) {
+        List<ImageView> selectedImages = [
+          ImageView(
+              imageData: selectedImagesMetaData[0],
+              width: null,
+              height: null,
+              imagePosition: Offset(0, 0),
+              imageScale: 1.0,
+              widgetPosTag: 0)
+        ];
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) => EditPage(
-                      singleImage: selectedImages[0],
+                      selectedImages: selectedImages,
                     )));
       } else {
         Navigator.push(
             context,
             MaterialPageRoute(
                 builder: (context) =>
-                    GridSelector(selectedImages: selectedImages)));
+                    GridSelector(selectedImages: selectedImagesMetaData)));
       }
     }
   }
