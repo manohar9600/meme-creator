@@ -110,6 +110,7 @@ class _FrameWidget extends State<FrameWidget> {
     return Container(
       width: _width,
       height: _height,
+      padding: EdgeInsets.only(top: 100),
       child: _gridWidget,
     );
   }
@@ -150,7 +151,6 @@ class _DraggableWidgetState extends State<DraggableWidget> {
         height: widget.height,
         width: widget.width,
         child: ImageViewWidget(
-          key: _key,
           imageView: imageView,
         ));
     gestureWidget = GestureDetector(
@@ -160,6 +160,7 @@ class _DraggableWidgetState extends State<DraggableWidget> {
       },
     );
     return DragTarget<DragData>(
+      key: _key,
       onWillAccept: (data) => true,
       onAccept: (data) {
         ImageView _prev = this.imageView;
@@ -207,7 +208,9 @@ class _DraggableWidgetState extends State<DraggableWidget> {
                   child: FocusedEdit(
                       imageView: imageView,
                       updateImageView: updateImageView,
-                      globalOffset: globalOffset));
+                      globalOffset: globalOffset,
+                      width: renderBox.size.width,
+                      height: renderBox.size.height));
             },
             fullscreenDialog: true,
             opaque: false));

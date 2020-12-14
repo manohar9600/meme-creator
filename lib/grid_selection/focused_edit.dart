@@ -8,10 +8,14 @@ class FocusedEdit extends StatefulWidget {
   final ImageView imageView;
   final Function updateImageView;
   final Offset globalOffset;
+  final double height;
+  final double width;
   FocusedEdit(
       {Key key,
       @required this.imageView,
       @required this.updateImageView,
+      @required this.height,
+      @required this.width,
       this.globalOffset})
       : super(key: key);
 
@@ -34,7 +38,10 @@ class _FocusedEditState extends State<FocusedEdit> {
 
   @override
   Widget build(BuildContext context) {
-    Widget imageWidget = ImageViewWidget(imageView: imageView);
+    Widget imageWidget = Container(
+        width: widget.width,
+        height: widget.height,
+        child: ImageViewWidget(imageView: imageView));
     Widget gesturesWidget = getGesturesWidget(imageWidget, context);
     return Scaffold(
         // appBar: AppBar(),
