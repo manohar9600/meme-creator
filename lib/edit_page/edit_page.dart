@@ -1,11 +1,10 @@
-import 'dart:typed_data';
-import 'dart:ui' as ui;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import 'edit_options.dart';
 import '../render/render.dart';
 import '../classes/image.dart';
+import '../grid_selection/grid_view.dart';
 
 class EditPage extends StatefulWidget {
   final List<ImageView> selectedImages;
@@ -22,7 +21,8 @@ class _EditPage extends State<EditPage> {
   @override
   void initState() {
     super.initState();
-    stackWidgets.add(getImageGridWidget(widget.selectedImages));
+    stackWidgets.add(GridViewCustom(
+        selectedImages: widget.selectedImages, draggable: false));
     _count += 1;
   }
 
@@ -32,38 +32,6 @@ class _EditPage extends State<EditPage> {
       resizeToAvoidBottomPadding: false,
       appBar: _getAppBar(),
       body: _getBodyWidget(),
-    );
-  }
-
-  Widget getImageGridWidget(List<ImageView> selectedImages) {
-    List<List<ImageView>> arrangedImages = [];
-    widget.selectedImages
-        .sort((a, b) => a.widgetPosTag.compareTo(b.widgetPosTag));
-    for (ImageView selectedImage in widget.selectedImages) {
-      int rowPos = selectedImage.widgetPosTag.toInt();
-      if (rowPos + 1 > arrangedImages.length) {
-        List<ImageView> emptyRow = [];
-        arrangedImages.add(emptyRow);
-      }
-      arrangedImages[rowPos].add(selectedImage);
-    }
-
-    double _width = 450;
-    double _height = 450;
-    Widget _gridWidget = Column(
-      children: List.generate(arrangedImages.length, (index) {
-        List<ImageView> rowImages = arrangedImages[index];
-        return Expanded(
-            child: Row(
-                children: List.generate(rowImages.length, (index) {
-          return Expanded(child: ImageViewWidget(imageView: rowImages[index]));
-        })));
-      }),
-    );
-    return Container(
-      width: _width,
-      height: _height,
-      child: _gridWidget,
     );
   }
 
@@ -111,7 +79,7 @@ class _EditPage extends State<EditPage> {
           flex: 8,
           child: Container(
             padding: EdgeInsets.all(0),
-            margin: EdgeInsets.only(bottom: 20, top: 5),
+            margin: EdgeInsets.only(bottom: 20),
             child: RepaintBoundary(
               key: stackKey,
               child: Stack(
