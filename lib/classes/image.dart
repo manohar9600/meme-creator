@@ -20,39 +20,15 @@ class ImageView {
   Offset imagePosition;
   double imageScale;
   double widgetPosTag;
+  String type = "";
+  Widget childWidget;
   ImageView(
-      {@required this.imageData,
+      {this.imageData,
+      this.childWidget,
       @required this.width,
       @required this.height,
       @required this.imagePosition,
       @required this.imageScale,
-      @required this.widgetPosTag});
-}
-
-class ImageViewWidget extends StatefulWidget {
-  // Widget that show image in desired view.
-  final Key key;
-  final ImageView imageView;
-  ImageViewWidget({this.key, @required this.imageView});
-  @override
-  _ImageViewWidget createState() => _ImageViewWidget();
-}
-
-class _ImageViewWidget extends State<ImageViewWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        height: widget.imageView.height,
-        width: widget.imageView.width,
-        child: ClipRect(
-          child: Transform.translate(
-            offset: widget.imageView.imagePosition,
-            child: Transform.scale(
-              alignment: Alignment.center,
-              scale: widget.imageView.imageScale,
-              child: Image.memory(widget.imageView.imageData.imageData),
-            ),
-          ),
-        ));
-  }
+      @required this.widgetPosTag,
+      @required this.type});
 }

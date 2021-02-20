@@ -2,7 +2,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import "package:flutter_feather_icons/flutter_feather_icons.dart";
 import '../classes/image.dart';
-import '2_2/g1.dart';
+import 'main_grid.dart';
 
 class GridSelector extends StatelessWidget {
   final List<ImageMetaData> selectedImages;
@@ -68,7 +68,7 @@ class _GridWidget extends State<GridWidget> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => G1(widget.selectedImages, 1)));
+                  builder: (context) => MainGrid(widget.selectedImages, 1)));
         },
       ),
       GestureDetector(
@@ -82,7 +82,7 @@ class _GridWidget extends State<GridWidget> {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => G1(widget.selectedImages, 2)));
+                  builder: (context) => MainGrid(widget.selectedImages, 2)));
         },
       ),
       // Container(

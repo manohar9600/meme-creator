@@ -54,7 +54,7 @@ class _NavigationBar extends State<NavigationBar> {
 
   BottomNavigationBarItem _buildNavigationButton(
       Color color, IconData icon, String label) {
-    return BottomNavigationBarItem(icon: Icon(icon), title: Text(label));
+    return BottomNavigationBarItem(icon: Icon(icon), label: label);
   }
 }
 

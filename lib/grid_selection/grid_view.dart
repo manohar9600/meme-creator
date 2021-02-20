@@ -12,26 +12,12 @@ class GridViewCustom extends StatefulWidget {
 
 class _GridViewCustom extends State<GridViewCustom> {
   final widgetHeight = 400.0;
-  List<List<ImageView>> arrangedImages = [];
-
-  @override
-  void initState() {
-    super.initState();
-    widget.selectedImages
-        .sort((a, b) => a.widgetPosTag.compareTo(b.widgetPosTag));
-    for (ImageView selectedImage in widget.selectedImages) {
-      int rowPos = selectedImage.widgetPosTag.toInt();
-      if (rowPos + 1 > arrangedImages.length) {
-        List<ImageView> emptyRow = [];
-        arrangedImages.add(emptyRow);
-      }
-      arrangedImages[rowPos].add(selectedImage);
-    }
-  }
+  // List<List<ImageView>> arrangedImages = [];
 
   @override
   Widget build(BuildContext context) {
-    double _width = 450;
+    List<List<ImageView>> arrangedImages = getArrangedImages();
+    double _width = MediaQuery.of(context).size.width;
     double _height = 450;
     Widget _gridWidget = Column(
       children: List.generate(arrangedImages.length, (index) {
@@ -39,9 +25,14 @@ class _GridViewCustom extends State<GridViewCustom> {
         return Expanded(
             child: Row(
                 children: List.generate(rowImages.length, (index) {
-          if (widget.draggable) {
+          if (rowImages[index].type == "title") {
+            return Expanded(child: rowImages[index].childWidget);
+          } else if (widget.draggable) {
+            rowImages[index].width = _width / rowImages.length;
+            rowImages[index].height = _height / arrangedImages.length;
             return Expanded(
-                child: DraggableWidget(selectedImage: rowImages[index]));
+                child: DraggableWidget(
+                    key: UniqueKey(), selectedImage: rowImages[index]));
           } else {
             return Expanded(
                 child: ImageViewWidget(imageView: rowImages[index]));
@@ -56,6 +47,21 @@ class _GridViewCustom extends State<GridViewCustom> {
       child: _gridWidget,
     );
   }
+
+  List<List<ImageView>> getArrangedImages() {
+    List<List<ImageView>> arrangedImages = [];
+    widget.selectedImages
+        .sort((a, b) => a.widgetPosTag.compareTo(b.widgetPosTag));
+    for (ImageView selectedImage in widget.selectedImages) {
+      int rowPos = selectedImage.widgetPosTag.toInt();
+      if (rowPos + 1 > arrangedImages.length) {
+        List<ImageView> emptyRow = [];
+        arrangedImages.add(emptyRow);
+      }
+      arrangedImages[rowPos].add(selectedImage);
+    }
+    return arrangedImages;
+  }
 }
 
 class DragData {
@@ -66,7 +72,7 @@ class DragData {
 
 class DraggableWidget extends StatefulWidget {
   final ImageView selectedImage;
-  DraggableWidget({this.selectedImage});
+  DraggableWidget({Key key, this.selectedImage}) : super(key: key);
 
   @override
   _DraggableWidgetState createState() => _DraggableWidgetState();
@@ -113,13 +119,15 @@ class _DraggableWidgetState extends State<DraggableWidget> {
         return Draggable<DragData>(
           data: DragData(updatePrevious: updateImageView, imageView: imageView),
           child: gestureWidget,
-          feedback: imageWidget,
+          feedback: Container(
+            // width: widget.width,
+            // height: widget.height,
+            child: imageWidget,
+          ),
           childWhenDragging: Container(
-              width: imageView.width,
-              height: imageView.height,
               child: Center(
-                child: Text("HEEEEEEEEEEEEEE"),
-              )),
+            child: Text("HEEEEEEEEEEEEEE"),
+          )),
         );
       },
     );
@@ -151,5 +159,61 @@ class _DraggableWidgetState extends State<DraggableWidget> {
             },
             fullscreenDialog: true,
             opaque: false));
+  }
+}
+
+class ImageViewWidget extends StatefulWidget {
+  // Widget that show image in desired view.
+  final Key key;
+  final ImageView imageView;
+  ImageViewWidget({this.key, @required this.imageView});
+  @override
+  _ImageViewWidget createState() => _ImageViewWidget();
+}
+
+class _ImageViewWidget extends State<ImageViewWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: widget.imageView.height,
+        width: widget.imageView.width,
+        child: ClipRect(
+          child: Transform.translate(
+            offset: widget.imageView.imagePosition,
+            child: Transform.scale(
+              alignment: Alignment.center,
+              scale: widget.imageView.imageScale,
+              child: Image.memory(widget.imageView.imageData.imageData),
+            ),
+          ),
+        ));
+  }
+}
+
+class GridCellView extends StatefulWidget {
+  // Widget that show image in desired view.
+  final Key key;
+  final ImageView imageView;
+  GridCellView({this.key, @required this.imageView});
+  @override
+  _GridCellView createState() => _GridCellView();
+}
+
+class _GridCellView extends State<GridCellView> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        height: widget.imageView.height,
+        width: widget.imageView.width,
+        child: ClipRect(
+          child: Transform.translate(
+            offset: widget.imageView.imagePosition,
+            child: Transform.scale(
+              alignment: Alignment.center,
+              scale: widget.imageView.imageScale,
+              child: Image.memory(widget.imageView.imageData.imageData),
+            ),
+          ),
+        ));
   }
 }

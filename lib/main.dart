@@ -6,7 +6,6 @@ import 'pages/home.dart';
 import 'classes/image.dart';
 import 'grid_selection/grid_selector.dart';
 import 'edit_page/edit_page.dart';
-import 'classes/image.dart';
 
 void main() => runApp(MyApp());
 
@@ -130,7 +129,8 @@ class _MainScreen extends State<MainScreen> {
         selectedImagesMetaData.add(ImageMetaData(
             imageData: pngBytes,
             height: e.originalHeight,
-            width: e.originalWidth));
+            width: e.originalWidth,
+            imageLoc: e.name));
       }
       if (selectedImagesMetaData.length == 1) {
         List<ImageView> selectedImages = [
@@ -140,7 +140,8 @@ class _MainScreen extends State<MainScreen> {
               height: null,
               imagePosition: Offset(0, 0),
               imageScale: 1.0,
-              widgetPosTag: 0)
+              widgetPosTag: 0,
+              type: "image")
         ];
         Navigator.push(
             context,

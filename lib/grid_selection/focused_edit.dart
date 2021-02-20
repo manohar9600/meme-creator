@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../classes/image.dart';
 import 'package:gesture_x_detector/gesture_x_detector.dart';
+import 'grid_view.dart' show ImageViewWidget;
 
 class FocusedEdit extends StatefulWidget {
   final ImageView imageView;
